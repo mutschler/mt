@@ -1,0 +1,11 @@
+{
+    "numcaps": 4,
+    "font_all": "Arial.ttf",
+    "verbose": false,
+    "font_size": 12,
+    "padding": 5,
+    "columns": 2,
+    "width": 500,
+    "disable_timestamps": false,
+    "single_images": false
+}
