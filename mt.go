@@ -10,11 +10,11 @@ import (
 	"math"
 	"image/draw"
 	"os"
+	"strconv"
 	"time"
 	"io/ioutil"
-	// "path"
 	"path/filepath"
-	// "strings"
+	"strings"
 	"github.com/disintegration/imaging"
 	// "github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -170,7 +170,17 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 	}
 
 	// create a new blank image
-	dst := imaging.New(imgWidth*columns + paddingColumns, imgHeight*imgRows + paddingRows, color.RGBA{0,0,0,0})
+	bgColor := strings.Split(viper.GetString("bg_content"), ",")
+	var r, g, b int
+	if len(bgColor) == 3 {
+		r, _ = strconv.Atoi(strings.TrimSpace(bgColor[0]))
+		g, _ = strconv.Atoi(strings.TrimSpace(bgColor[1]))
+		b, _ = strconv.Atoi(strings.TrimSpace(bgColor[2]))
+	} else {
+		fmt.Println("useing fallback bg_content: 0,0,0")
+		r, g, b = 0, 0,0 
+	}
+	dst := imaging.New(imgWidth*columns + paddingColumns, imgHeight*imgRows + paddingRows, color.RGBA{uint8(r),uint8(g),uint8(b),255})
 	x := 0
 	curRow := 0
 	// paste thumbnails into the new image side by side
@@ -201,7 +211,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Saved to %s", fn)
+	fmt.Printf("Saved to %s\n", fn)
 }
 
 func createHeader(fn string) {
@@ -251,7 +261,7 @@ func main() {
 	viper.SetDefault("disable_timestamps", false)
 	viper.SetDefault("filename", "%s.jpg")
 	viper.SetDefault("verbose", false)
-	viper.SetDefault("bg_content", "0,0,0,0")
+	viper.SetDefault("bg_content", "0,0,0")
 	viper.SetDefault("border", 0)
 	viper.SetDefault("single_images", false)
 	viper.SetDefault("header", true)
