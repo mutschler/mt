@@ -110,8 +110,10 @@ func GenerateScreenshots(fn string) []image.Image {
 	}
 	defer gen.Close()
 
-	//skip 4 minutes of duration to remove intro and credits
-	inc := (gen.Duration - 240000) / int64(viper.GetInt("numcaps"))
+	inc := gen.Duration / int64(viper.GetInt("numcaps"))
+	if inc <= 60000 {
+		fmt.Println("verry small timestamps in use... consider decreasing numcaps")
+	} 
 	d := inc
 	for i := 0; i < viper.GetInt("numcaps"); i++ {
 		img, err := gen.Image(d)
