@@ -298,22 +298,21 @@ func appendHeader(im image.Image) image.Image {
     c := freetype.NewContext()
     c.SetDPI(72)
     c.SetFont(font)
-    c.SetFontSize(float64(viper.GetInt("font_size")))
+    c.SetFontSize(float64(viper.GetInt("font_size")+2))
 
     // get width and height of the string and draw an image to hold it
-    //x, y, _ := c.MeasureString(timestamp)
-    rgba := image.NewRGBA(image.Rect(0, 0, im.Bounds().Dx(), (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+2))>>8)*6) + 10))
+    //x, y, _ := c.MeasureString(timestamp)    
+    header := createHeader(mpath)
+
+    rgba := image.NewRGBA(image.Rect(0, 0, im.Bounds().Dx(), (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*len(header)) + 10 ))
     draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
     c.SetClip(rgba.Bounds())
     c.SetDst(rgba)
     c.SetSrc(fontcolor)
 
-    
-    
-    header := createHeader(mpath)
     for i, s := range header {
         //draw the text with 5px padding and lineheight +2 
-        pt := freetype.Pt(5, (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+2))>>8)*(i+1)))
+        pt := freetype.Pt(5, (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*(i+1)))
         _, err = c.DrawString(s, pt)
         if err != nil {
             fmt.Println(err)
@@ -336,8 +335,8 @@ func createHeader(fn string) []string {
     if err != nil {
         fmt.Println(err)
     }
-    fsize := fmt.Sprintf("Size: %s", humanize.Bytes(uint64(stat.Size())))
-    fname = fmt.Sprintf("Filename: %s", fname)
+    fsize := fmt.Sprintf("File Size: %s", humanize.Bytes(uint64(stat.Size())))
+    fname = fmt.Sprintf("File Name: %s", fname)
     // fmt.Println(fsize, fname)
 
     gen, err := screengen.NewGenerator(fn)
@@ -351,15 +350,15 @@ func createHeader(fn string) []string {
     duration := fmt.Sprintf("Duration: %s", time.Unix(gen.Duration/1000, 0).UTC().Format("15:04:05"))
     // fmt.Println(duration)
 
-    dimension := fmt.Sprintf("Dimensions: %dx%d", gen.Width, gen.Height)
-    fps := fmt.Sprintf("FPS: %f", gen.FPS)
+    dimension := fmt.Sprintf("Resolution: %dx%d", gen.Width, gen.Height)
+    // fps := fmt.Sprintf("FPS: %f", gen.FPS)
 
     // fmt.Println(gen.VideoCodec)
-    codec := fmt.Sprintf("Codec: %s", gen.CodecName)
+    // codec := fmt.Sprintf("Codec: %s", gen.CodecName)
 
     // fmt.Println(dimension, fps)
     // fmt.Sprintf("%s \n %s \n %s", fname, fsize, duration)
-    return []string{fname, fsize, duration, dimension, codec, fps}
+    return []string{fname, fsize, duration, dimension}
     //os.Exit(1)
 }
 
