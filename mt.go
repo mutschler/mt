@@ -81,15 +81,23 @@ func Width(s string, f *truetype.Font) int {
 //gets the timestamp value ("HH:MM:SS") and returns an image
 func drawTimestamp(timestamp string) image.Image {
     var timestamped image.Image
-
+    if viper.GetBool("verbose") {
+        fmt.Printf("font for timestamp: %s \n", findFont(viper.GetString("font_all")))
+    }
     fontBytes, err := ioutil.ReadFile(findFont(viper.GetString("font_all")))
 
     if err != nil {
+        if viper.GetBool("verbose") {
+            fmt.Printf("error opening font file: %s \n", findFont(viper.GetString("font_all")))
+        }
         fmt.Println(err)
         return timestamped
     }
     font, err := freetype.ParseFont(fontBytes)
     if err != nil {
+        if viper.GetBool("verbose") {
+            fmt.Printf("error parsing font file: %s \n", findFont(viper.GetString("font_all")))
+        }
         fmt.Println(err)
         return timestamped
     }
@@ -112,8 +120,14 @@ func drawTimestamp(timestamp string) image.Image {
     pt := freetype.Pt(5, 3+int(c.PointToFix32(float64(viper.GetInt("font_size")))>>8))
     _, err = c.DrawString(timestamp, pt)
     if err != nil {
+        if viper.GetBool("verbose") {
+            fmt.Printf("error creating timestamp image for: %s \n", timestamp)
+        }
         fmt.Println(err)
         return timestamped
+    }
+    if viper.GetBool("verbose") {
+        fmt.Printf("created timestamp image for: %s \n", timestamp)
     }
     return rgba
 
