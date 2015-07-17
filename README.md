@@ -10,8 +10,8 @@ at the moment mt can't be configured and will write a jpg file with 24 screensho
 
 `go get bitbucket.org/raphaelmutschler/mt`
 
-### example usage:
+### examples:
 
-`mt BigBuckBunny_512kb.mp4`
+more examples can be found in the example older
 
-example output can be found in example folder
+![alt text](./example/mt_2x2.jpg)
