@@ -3,8 +3,8 @@ package main
 import (
     "flag"
     "fmt"
-    "github.com/disintegration/imaging"
     "github.com/cytec/screengen"
+    "github.com/disintegration/imaging"
     "image"
     "image/color"
     "image/draw"
@@ -27,23 +27,27 @@ import (
     "github.com/dustin/go-humanize"
 )
 
-// trys to find a font in the local FS
-func findFont(f string) string {
-    if strings.Contains(f, "/") && strings.HasSuffix(f, ".ttf") {
-        return f
-    }
-    fdirs := []string{"/Library/Fonts/", "/usr/share/fonts/", "./"}
-
+func getFont(f string) ([]byte, error) {
     if !strings.HasSuffix(f, ".ttf") {
         f = fmt.Sprintf("%s.ttf", f)
     }
+    if strings.Contains(f, "/") && strings.HasSuffix(f, ".ttf") {
+        if _, err := os.Stat(f); err == nil {
+            fmt.Printf("useing font: %s\n", f)
+            return ioutil.ReadFile(f)
+        }
+    }
+    fdirs := []string{"/Library/Fonts/", "/usr/share/fonts/", "./"}
+
     for _, dir := range fdirs {
         fpath := filepath.Join(dir, f)
         if _, err := os.Stat(fpath); err == nil {
-            return fpath
+            fmt.Printf("useing font: %s\n", fpath)
+            return ioutil.ReadFile(fpath)
         }
     }
-    return ""
+    fmt.Println("useing font: Ubuntu.ttf")
+    return Asset("Ubuntu.ttf")
 }
 
 func writeImage(img image.Image, fn string) {
@@ -81,23 +85,14 @@ func Width(s string, f *truetype.Font) int {
 //gets the timestamp value ("HH:MM:SS") and returns an image
 func drawTimestamp(timestamp string) image.Image {
     var timestamped image.Image
-    if viper.GetBool("verbose") {
-        fmt.Printf("font for timestamp: %s \n", findFont(viper.GetString("font_all")))
-    }
-    fontBytes, err := ioutil.ReadFile(findFont(viper.GetString("font_all")))
+    // fontBytes, err := getFont(viper.GetString("font_all"))
 
-    if err != nil {
-        if viper.GetBool("verbose") {
-            fmt.Printf("error opening font file: %s \n", findFont(viper.GetString("font_all")))
-        }
-        fmt.Println(err)
-        return timestamped
-    }
+    // if err != nil {
+    //     fmt.Println(err)
+    //     return timestamped
+    // }
     font, err := freetype.ParseFont(fontBytes)
     if err != nil {
-        if viper.GetBool("verbose") {
-            fmt.Printf("error parsing font file: %s \n", findFont(viper.GetString("font_all")))
-        }
         fmt.Println(err)
         return timestamped
     }
@@ -245,7 +240,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
     if viper.GetBool("header") {
         fmt.Println("appending header informations")
         head := appendHeader(dst)
-        newIm := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy() + head.Bounds().Dy(), color.RGBA{uint8(r), uint8(g), uint8(b), 255} )
+        newIm := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy()+head.Bounds().Dy(), color.RGBA{uint8(r), uint8(g), uint8(b), 255})
         dst = imaging.Paste(newIm, dst, image.Pt(0, head.Bounds().Dy()))
         dst = imaging.Paste(dst, head, image.Pt(0, 0))
     }
@@ -260,12 +255,12 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 
 func appendHeader(im image.Image) image.Image {
     var timestamped image.Image
-    fontBytes, err := ioutil.ReadFile(findFont(viper.GetString("font_all")))
+    // fontBytes, err := getFont(viper.GetString("font_all"))
 
-    if err != nil {
-        fmt.Println(err)
-        return timestamped
-    }
+    // if err != nil {
+    //     fmt.Println(err)
+    //     return timestamped
+    // }
     font, err := freetype.ParseFont(fontBytes)
     if err != nil {
         fmt.Println(err)
@@ -298,21 +293,21 @@ func appendHeader(im image.Image) image.Image {
     c := freetype.NewContext()
     c.SetDPI(72)
     c.SetFont(font)
-    c.SetFontSize(float64(viper.GetInt("font_size")+2))
+    c.SetFontSize(float64(viper.GetInt("font_size") + 2))
 
     // get width and height of the string and draw an image to hold it
-    //x, y, _ := c.MeasureString(timestamp)    
+    //x, y, _ := c.MeasureString(timestamp)
     header := createHeader(mpath)
 
-    rgba := image.NewRGBA(image.Rect(0, 0, im.Bounds().Dx(), (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*len(header)) + 10 ))
+    rgba := image.NewRGBA(image.Rect(0, 0, im.Bounds().Dx(), (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*len(header))+10))
     draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
     c.SetClip(rgba.Bounds())
     c.SetDst(rgba)
     c.SetSrc(fontcolor)
 
     for i, s := range header {
-        //draw the text with 5px padding and lineheight +2 
-        pt := freetype.Pt(5, (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*(i+1)))
+        //draw the text with 5px padding and lineheight +2
+        pt := freetype.Pt(5, (5 + int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*(i+1)))
         _, err = c.DrawString(s, pt)
         if err != nil {
             fmt.Println(err)
@@ -363,6 +358,7 @@ func createHeader(fn string) []string {
 }
 
 var mpath string
+var fontBytes []byte
 
 func main() {
     viper.SetConfigName("mt")
@@ -405,20 +401,14 @@ func main() {
         os.Exit(1)
     }
 
+    fontBytes, err = getFont(viper.GetString("font_all"))
+    if err != nil {
+        fmt.Println("unable to load font, disableing timestamps and header")
+    }
+
     for _, movie := range flag.Args() {
         mpath = movie
         fmt.Printf("generating contact sheet for %s\n", movie)
-        if strings.Contains(viper.GetString("font_all"), "/") {
-            fmt.Printf("useing font: %s\n", viper.GetString("font_all"))
-        } else {
-            if findFont(viper.GetString("font_all")) == "" {
-                fmt.Printf("unable to find font %s, timestamps disabled\n", viper.GetString("font_all"))
-                viper.Set("disable_timestamps", true)
-            } else {
-                fmt.Printf("useing font found at: %s\n", findFont(viper.GetString("font_all")))
-            }
-
-        }
 
         thumbs := GenerateScreenshots(movie)
         if viper.GetBool("single_images") {
