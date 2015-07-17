@@ -30,9 +30,10 @@ alternatively you can set environment variables to change some of the settings a
 | columns | 2 | how many columns should be used |
 | padding | 5 | add a padding around the images |
 | width | 400 | width of a single screenshot |
-| font_all | "Arial.ttf" | Font to use for timestamps and header |
+| font_all | "Ubuntu.ttf" | Font to use for timestamps and header |
 | font_size | 12 | font size |
 | disable_timestamps | false | option to disable timestamp generation |
+| timestamp_opacity | 1.0 | opacity of the timestamps must be from 0.0 to 1.0 |
 | bg_content | "0,0,0" | RGB values for background color |
 | single_images | false | will create a single image for each screenshot |
 | header | true | append a header with file informations |

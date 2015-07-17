@@ -167,7 +167,7 @@ func GenerateScreenshots(fn string) []image.Image {
 
         if !viper.GetBool("disable_timestamps") && !viper.GetBool("single_images") {
             tsimage := drawTimestamp(timestamp)
-            thumb = imaging.Paste(thumb, tsimage, image.Pt(thumb.Bounds().Dx()-tsimage.Bounds().Dx()-10, thumb.Bounds().Dy()-tsimage.Bounds().Dy()-10))
+            thumb = imaging.Overlay(thumb, tsimage, image.Pt(thumb.Bounds().Dx()-tsimage.Bounds().Dx()-10, thumb.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
             //fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05"))
         }
 
@@ -368,9 +368,10 @@ func main() {
     viper.SetDefault("padding", 5)
     viper.SetDefault("width", 400)
     viper.SetDefault("height", 0)
-    viper.SetDefault("font_all", "Arial.ttf")
+    viper.SetDefault("font_all", "Ubuntu.ttf")
     viper.SetDefault("font_size", 12)
     viper.SetDefault("disable_timestamps", false)
+    viper.SetDefault("timestamp_opacity", 1.0)
     viper.SetDefault("filename", "%s.jpg")
     viper.SetDefault("verbose", false)
     viper.SetDefault("bg_content", "0,0,0")
