@@ -26,9 +26,9 @@ alternatively you can set environment variables to change some of the settings a
 
 | name | default value | description |
 | ---- | ----- | ----------- |
-| numcaps | 24 | number of screenshots to take |
-| columns | 4 | how many columns should be used |
-| padding | 0 | add a padding around the images |
+| numcaps | 4 | number of screenshots to take |
+| columns | 2 | how many columns should be used |
+| padding | 5 | add a padding around the images |
 | width | 400 | width of a single screenshot |
 | font_all | "Arial.ttf" | Font to use for timestamps and header |
 | font_size | 12 | font size |
@@ -36,6 +36,8 @@ alternatively you can set environment variables to change some of the settings a
 | bg_content | "0,0,0" | RGB values for background color |
 | single_images | false | will create a single image for each screenshot |
 | header | true | append a header with file informations |
+| bg_header | "0,0,0" | header background color |
+| fg_header | "255,255,255" | header font color |
 
 
 ## Usage
@@ -43,7 +45,7 @@ alternatively you can set environment variables to change some of the settings a
 just run `mt` and provide any video file as args:
 `mt video.avi`
 
-### examples:
+### example:
 
 more examples can be found in the example older
 

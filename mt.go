@@ -135,6 +135,10 @@ func GenerateScreenshots(fn string) []image.Image {
     }
     d := inc
     for i := 0; i < viper.GetInt("numcaps"); i++ {
+        // skip last 30 seconds if we got the last frame...
+        if i == viper.GetInt("numcaps")-1 {
+            d = d - 30000
+        }
         img, err := gen.Image(d)
         if err != nil {
             fmt.Fprintf(os.Stderr, "Can't generate screenshot: %v\n", err)
@@ -254,7 +258,29 @@ func appendHeader(im image.Image) image.Image {
         return timestamped
     }
 
-    fg, bg := image.White, image.Black
+    bgColor := strings.Split(viper.GetString("bg_header"), ",")
+    var r, g, b int
+    if len(bgColor) == 3 {
+        r, _ = strconv.Atoi(strings.TrimSpace(bgColor[0]))
+        g, _ = strconv.Atoi(strings.TrimSpace(bgColor[1]))
+        b, _ = strconv.Atoi(strings.TrimSpace(bgColor[2]))
+    } else {
+        fmt.Println("useing fallback bg_header: 0,0,0")
+        r, g, b = 0, 0, 0
+    }
+
+    fgColor := strings.Split(viper.GetString("fg_header"), ",")
+    var fr, fg, fb int
+    if len(fgColor) == 3 {
+        fr, _ = strconv.Atoi(strings.TrimSpace(fgColor[0]))
+        fg, _ = strconv.Atoi(strings.TrimSpace(fgColor[1]))
+        fb, _ = strconv.Atoi(strings.TrimSpace(fgColor[2]))
+    } else {
+        fmt.Println("useing fallback bg_header: 255,255,255")
+        fr, fg, fb = 255, 255, 255
+    }
+
+    fontcolor, bg := image.NewUniform(color.RGBA{uint8(fr), uint8(fg), uint8(fb), 255}), image.NewUniform(color.RGBA{uint8(r), uint8(g), uint8(b), 255})
     c := freetype.NewContext()
     c.SetDPI(72)
     c.SetFont(font)
@@ -266,7 +292,7 @@ func appendHeader(im image.Image) image.Image {
     draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
     c.SetClip(rgba.Bounds())
     c.SetDst(rgba)
-    c.SetSrc(fg)
+    c.SetSrc(fontcolor)
 
     
     
@@ -328,11 +354,11 @@ var mpath string
 func main() {
     viper.SetConfigName("mt")
     viper.SetEnvPrefix("mt")
-    viper.SetDefault("numcaps", 24)
-    viper.SetDefault("columns", 4)
-    viper.SetDefault("padding", 0)
+    viper.SetDefault("numcaps", 4)
+    viper.SetDefault("columns", 2)
+    viper.SetDefault("padding", 5)
     viper.SetDefault("width", 400)
-    viper.SetDefault("height", 160)
+    viper.SetDefault("height", 0)
     viper.SetDefault("font_all", "Arial.ttf")
     viper.SetDefault("font_size", 12)
     viper.SetDefault("disable_timestamps", false)
@@ -343,6 +369,8 @@ func main() {
     viper.SetDefault("single_images", false)
     viper.SetDefault("header", true)
     viper.SetDefault("font_dirs", []string{})
+    viper.SetDefault("bg_header", "0,0,0")
+    viper.SetDefault("fg_header", "255,255,255")
 
     viper.AutomaticEnv()
 
