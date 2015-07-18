@@ -46,8 +46,8 @@ func getFont(f string) ([]byte, error) {
             return ioutil.ReadFile(fpath)
         }
     }
-    fmt.Println("useing font: Ubuntu.ttf")
-    return Asset("Ubuntu.ttf")
+    fmt.Println("useing font: DroidSans.ttf")
+    return Asset("DroidSans.ttf")
 }
 
 func writeImage(img image.Image, fn string) {
@@ -163,12 +163,40 @@ func GenerateScreenshots(fn string) []image.Image {
             thumb = imaging.Resize(img, viper.GetInt("width"), 0, imaging.Lanczos)
         } else if viper.GetInt("width") == 0 && viper.GetInt("height") > 0 {
             thumb = imaging.Resize(img, 0, viper.GetInt("height"), imaging.Lanczos)
+        } else {
+            thumb = img
         }
 
         if !viper.GetBool("disable_timestamps") && !viper.GetBool("single_images") {
             tsimage := drawTimestamp(timestamp)
             thumb = imaging.Overlay(thumb, tsimage, image.Pt(thumb.Bounds().Dx()-tsimage.Bounds().Dx()-10, thumb.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
             //fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05"))
+        }
+
+        //apply filters
+        switch viper.GetString("filter") {
+        case "greyscale":
+            thumb = imaging.Grayscale(thumb)
+            thumb = imaging.Sharpen(thumb, 1.0)
+            thumb = imaging.AdjustContrast(thumb, 20)
+        case "invert":
+            thumb = imaging.Invert(thumb)
+        }
+
+        //watermark middle image
+        if i == (viper.GetInt("numcaps")-1)/2 && viper.GetString("watermark") != "" {
+            ov, err := imaging.Open(viper.GetString("watermark"))
+            if err == nil {
+                if ov.Bounds().Dx() > thumb.Bounds().Dx() {
+                    ov = imaging.Resize(ov, thumb.Bounds().Dx(), 0, imaging.Lanczos)
+                }
+                if ov.Bounds().Dy() > thumb.Bounds().Dy() {
+                    ov = imaging.Resize(ov, 0, thumb.Bounds().Dy(), imaging.Lanczos)
+                }
+                posX := (thumb.Bounds().Dx() - ov.Bounds().Dx()) / 2
+                posY := (thumb.Bounds().Dy() - ov.Bounds().Dy()) / 2
+                thumb = imaging.Overlay(thumb, ov, image.Pt(posX, posY), 0.6)
+            }
         }
 
         thumbnails = append(thumbnails, thumb)
@@ -291,16 +319,34 @@ func appendHeader(im image.Image) image.Image {
 
     fontcolor, bg := image.NewUniform(color.RGBA{uint8(fr), uint8(fg), uint8(fb), 255}), image.NewUniform(color.RGBA{uint8(r), uint8(g), uint8(b), 255})
     c := freetype.NewContext()
-    c.SetDPI(72)
+    c.SetDPI(96)
     c.SetFont(font)
-    c.SetFontSize(float64(viper.GetInt("font_size") + 2))
+    c.SetFontSize(float64(viper.GetInt("font_size")))
 
     // get width and height of the string and draw an image to hold it
     //x, y, _ := c.MeasureString(timestamp)
     header := createHeader(mpath)
 
-    rgba := image.NewRGBA(image.Rect(0, 0, im.Bounds().Dx(), (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*len(header))+10))
+    rgba := image.NewNRGBA(image.Rect(0, 0, im.Bounds().Dx(), (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*len(header))+10))
     draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
+    if viper.GetString("head_image") != "" {
+        ov, err := imaging.Open(viper.GetString("head_image"))
+        if err == nil {
+            if ov.Bounds().Dy() >= (rgba.Bounds().Dy() - 20) {
+                ov = imaging.Resize(ov, 0, rgba.Bounds().Dy()-20, imaging.Lanczos)
+            }
+            //center image height
+            posY := (rgba.Bounds().Dy() - ov.Bounds().Dy()) / 2
+            if posY < 10 {
+                posY = 10
+            }
+            rgba = imaging.Overlay(rgba, ov, image.Pt(rgba.Bounds().Dx()-ov.Bounds().Dx()-10, posY), 1.0)
+
+        } else {
+            fmt.Println("error opening header overlay image")
+        }
+    }
+
     c.SetClip(rgba.Bounds())
     c.SetDst(rgba)
     c.SetSrc(fontcolor)
@@ -381,6 +427,9 @@ func main() {
     viper.SetDefault("font_dirs", []string{})
     viper.SetDefault("bg_header", "0,0,0")
     viper.SetDefault("fg_header", "255,255,255")
+    viper.SetDefault("head_image", "")
+    viper.SetDefault("watermark", "")
+    viper.SetDefault("filter", "none")
 
     viper.AutomaticEnv()
 

@@ -39,6 +39,9 @@ alternatively you can set environment variables to change some of the settings a
 | header | true | append a header with file informations |
 | bg_header | "0,0,0" | header background color |
 | fg_header | "255,255,255" | header font color |
+| header_image | "" | absolute path to an image that should be added to the header |
+| watermark | "" | absolute path to an watermark image that will be added to the middle image of the contact sheet |
+| filter | "none" | choose a filter to add to the thumbnails: "greyscale", "invert" |
 
 
 ## Usage
