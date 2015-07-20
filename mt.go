@@ -1,10 +1,10 @@
 package main
 
 import (
-    "flag"
     "fmt"
     "github.com/cytec/screengen"
     "github.com/disintegration/imaging"
+    flag "github.com/spf13/pflag"
     "image"
     "image/color"
     "image/draw"
@@ -176,12 +176,6 @@ func GenerateScreenshots(fn string) []image.Image {
             thumb = img
         }
 
-        if !viper.GetBool("disable_timestamps") && !viper.GetBool("single_images") {
-            tsimage := drawTimestamp(timestamp)
-            thumb = imaging.Overlay(thumb, tsimage, image.Pt(thumb.Bounds().Dx()-tsimage.Bounds().Dx()-10, thumb.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
-            //fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05"))
-        }
-
         //apply filters
         switch viper.GetString("filter") {
         case "greyscale":
@@ -190,6 +184,12 @@ func GenerateScreenshots(fn string) []image.Image {
             thumb = imaging.AdjustContrast(thumb, 20)
         case "invert":
             thumb = imaging.Invert(thumb)
+        }
+
+        if !viper.GetBool("disable_timestamps") && !viper.GetBool("single_images") {
+            tsimage := drawTimestamp(timestamp)
+            thumb = imaging.Overlay(thumb, tsimage, image.Pt(thumb.Bounds().Dx()-tsimage.Bounds().Dx()-10, thumb.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
+            //fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05"))
         }
 
         //watermark middle image
@@ -362,7 +362,7 @@ func appendHeader(im image.Image) image.Image {
 
     for i, s := range header {
         //draw the text with 5px padding and lineheight +2
-        pt := freetype.Pt(5, (5 + int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*(i+1)))
+        pt := freetype.Pt(10, (5 + int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*(i+1)))
         _, err = c.DrawString(s, pt)
         if err != nil {
             fmt.Println(err)
@@ -419,8 +419,9 @@ func main() {
     viper.SetConfigName("mt")
     viper.SetEnvPrefix("mt")
     viper.SetDefault("numcaps", 4)
+
     viper.SetDefault("columns", 2)
-    viper.SetDefault("padding", 5)
+    viper.SetDefault("padding", 10)
     viper.SetDefault("width", 400)
     viper.SetDefault("height", 0)
     viper.SetDefault("font_all", "DroidSans.ttf")
@@ -439,6 +440,39 @@ func main() {
     viper.SetDefault("head_image", "")
     viper.SetDefault("watermark", "")
     viper.SetDefault("filter", "none")
+
+    flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures")
+    viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
+
+    flag.IntP("columns", "c", viper.GetInt("columns"), "number of columns")
+    viper.BindPFlag("columns", flag.Lookup("columns"))
+
+    flag.IntP("padding", "p", viper.GetInt("padding"), "padding between the images in px")
+    viper.BindPFlag("padding", flag.Lookup("padding"))
+
+    flag.IntP("width", "w", viper.GetInt("width"), "width of a single screenshot in px")
+    viper.BindPFlag("width", flag.Lookup("width"))
+
+    flag.StringP("font", "f", viper.GetString("font_all"), "font to use for timestamps and header information")
+    viper.BindPFlag("font_all", flag.Lookup("font_all"))
+
+    flag.BoolP("disable-timestamps", "d", true, "disable-timestamps")
+    viper.BindPFlag("disable_timestamps", flag.Lookup("disable-timestamps"))
+
+    flag.BoolP("verbose", "v", true, "verbose output")
+    viper.BindPFlag("verbose", flag.Lookup("verbose"))
+
+    flag.BoolP("single-images", "s", true, "save single images instead of one combined contact sheet")
+    viper.BindPFlag("single_images", flag.Lookup("single-images"))
+
+    flag.String("bg-header", viper.GetString("bg_header"), "rgb background color for header")
+    viper.BindPFlag("bg_header", flag.Lookup("bg-header"))
+
+    flag.String("fg-header", viper.GetString("fg_header"), "rgb font color for header")
+    viper.BindPFlag("fg_header", flag.Lookup("fg-header"))
+
+    flag.String("bg-content", viper.GetString("bg_content"), "rgb background color for header")
+    viper.BindPFlag("bg_content", flag.Lookup("bg-content"))
 
     viper.AutomaticEnv()
 
@@ -469,7 +503,9 @@ func main() {
         mpath = movie
         fmt.Printf("generating contact sheet for %s\n", movie)
 
-        thumbs := GenerateScreenshots(movie)
+        var thumbs []image.Image
+        // thumbs = getImages(movie)
+        thumbs = GenerateScreenshots(movie)
         if viper.GetBool("single_images") {
             for i, thumb := range thumbs {
                 path, fname := filepath.Split(movie)
