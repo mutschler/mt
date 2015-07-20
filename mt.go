@@ -139,7 +139,7 @@ func GenerateScreenshots(fn string) []image.Image {
     defer gen.Close()
 
     duration := gen.Duration
-    percentage := int64((float32(gen.Duration/100)) * (5.5*2))
+    percentage := int64((float32(gen.Duration / 100)) * (5.5 * 2))
     //cut of 2 minutes of video if video has at least 4 minutes else cut away (or at least 10.10%)
     if duration > (120000*2) && 120000 > percentage {
         duration = duration - 120000
@@ -473,6 +473,9 @@ func main() {
 
     flag.String("bg-content", viper.GetString("bg_content"), "rgb background color for header")
     viper.BindPFlag("bg_content", flag.Lookup("bg-content"))
+
+    flag.String("head-image", viper.GetString("head_image"), "image to put in the header")
+    viper.BindPFlag("head_image", flag.Lookup("head-image"))
 
     viper.AutomaticEnv()
 

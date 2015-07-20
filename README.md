@@ -1,14 +1,13 @@
 # mt
 
-mt is a lightweight golang movie thumbnailer currently still in development
-
-at the moment mt can't be configured and will write a jpg file with 24 screenshots to the same direcetory as the source file
+mt is a lightweight media thumbnailer. it aims to be a simple and fast alternative to outlayers awesome [Video Contact Sheet](http://p.outlyer.net/vcs/)
 
 ## Installation
 
-`mt` uses the ffmpeg av library, so you'll need those librarys and then just run:
+`mt` uses depends on ffmpeg's libraries, so you'll need those installed and then run:
 
 `go get bitbucket.org/raphaelmutschler/mt`
+`go install bitbucket.org/raphaelmutschler/mt`
 
 ## Settings
 
@@ -48,6 +47,8 @@ alternatively you can set environment variables to change some of the settings a
 
 just run `mt` and provide any video file as args:
 `mt video.avi`
+
+Some of the settings can be changed through runtime flags provided directly to `mt` for more information just run `mt --help`
 
 ### example:
 
