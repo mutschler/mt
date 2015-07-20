@@ -1,10 +1,15 @@
 package main
 
 import (
+    "code.google.com/p/jamslam-freetype-go/freetype"
+    "code.google.com/p/jamslam-freetype-go/freetype/truetype"
     "fmt"
+    log "github.com/Sirupsen/logrus"
     "github.com/cytec/screengen"
     "github.com/disintegration/imaging"
+    "github.com/dustin/go-humanize"
     flag "github.com/spf13/pflag"
+    "github.com/spf13/viper"
     "image"
     "image/color"
     "image/draw"
@@ -16,15 +21,6 @@ import (
     "strconv"
     "strings"
     "time"
-    // "github.com/spf13/cobra"
-    "github.com/spf13/viper"
-    // "code.google.com/p/freetype-go/freetype"
-    // "code.google.com/p/freetype-go/freetype/truetype"
-    //
-    "code.google.com/p/jamslam-freetype-go/freetype"
-    "code.google.com/p/jamslam-freetype-go/freetype/truetype"
-
-    "github.com/dustin/go-humanize"
 )
 
 func getFont(f string) ([]byte, error) {
@@ -33,7 +29,7 @@ func getFont(f string) ([]byte, error) {
     }
     if strings.Contains(f, "/") && strings.HasSuffix(f, ".ttf") {
         if _, err := os.Stat(f); err == nil {
-            fmt.Printf("useing font: %s\n", f)
+            log.Infof("useing font: %s", f)
             return ioutil.ReadFile(f)
         }
     }
@@ -42,25 +38,25 @@ func getFont(f string) ([]byte, error) {
     for _, dir := range fdirs {
         fpath := filepath.Join(dir, f)
         if _, err := os.Stat(fpath); err == nil {
-            fmt.Printf("useing font: %s\n", fpath)
+            log.Infof("useing font: %s", fpath)
             return ioutil.ReadFile(fpath)
         }
     }
-    fmt.Println("useing font: DroidSans.ttf")
+    log.Info("useing font: DroidSans.ttf")
     return Asset("DroidSans.ttf")
 }
 
 func writeImage(img image.Image, fn string) {
     f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Can't create file: %v\n", err)
+        log.Fatalf("Can't create file: %v", err)
         os.Exit(1)
     }
     defer f.Close()
 
     err = jpeg.Encode(f, img, &jpeg.Options{Quality: 85})
     if err != nil {
-        fmt.Fprintf(os.Stderr, "JPEG encoding error: %v\n", err)
+        log.Fatalf("JPEG encoding error: %v", err)
         os.Exit(1)
     }
 }
@@ -85,15 +81,10 @@ func Width(s string, f *truetype.Font) int {
 //gets the timestamp value ("HH:MM:SS") and returns an image
 func drawTimestamp(timestamp string) image.Image {
     var timestamped image.Image
-    // fontBytes, err := getFont(viper.GetString("font_all"))
 
-    // if err != nil {
-    //     fmt.Println(err)
-    //     return timestamped
-    // }
     font, err := freetype.ParseFont(fontBytes)
     if err != nil {
-        fmt.Println(err)
+        log.Error(err)
         return timestamped
     }
 
@@ -115,15 +106,12 @@ func drawTimestamp(timestamp string) image.Image {
     pt := freetype.Pt(5, 3+int(c.PointToFix32(float64(viper.GetInt("font_size")))>>8))
     _, err = c.DrawString(timestamp, pt)
     if err != nil {
-        if viper.GetBool("verbose") {
-            fmt.Printf("error creating timestamp image for: %s \n", timestamp)
-        }
-        fmt.Println(err)
+        log.Errorf("error creating timestamp image for: %s", timestamp)
         return timestamped
     }
-    if viper.GetBool("verbose") {
-        fmt.Printf("created timestamp image for: %s \n", timestamp)
-    }
+
+    log.Debugf("created timestamp image for: %s", timestamp)
+
     return rgba
 
 }
@@ -133,7 +121,7 @@ func GenerateScreenshots(fn string) []image.Image {
     var thumbnails []image.Image
     gen, err := screengen.NewGenerator(fn)
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error reading video file: %v\n", err)
+        log.Fatalf("Error reading video file: %v", err)
         os.Exit(1)
     }
     defer gen.Close()
@@ -149,24 +137,19 @@ func GenerateScreenshots(fn string) []image.Image {
 
     inc := duration / (int64(viper.GetInt("numcaps")))
     if inc <= 60000 {
-        fmt.Println("verry small timestamps in use... consider decreasing numcaps")
+        log.Warn("verry small timestamps in use... consider decreasing numcaps")
     }
     d := inc
     for i := 0; i < viper.GetInt("numcaps"); i++ {
-        // // skip last 30 seconds if we got the last frame...
-        // if i == viper.GetInt("numcaps")-1 {
-        //     d = d - 30000
-        // }
+
         img, err := gen.Image(d)
         if err != nil {
-            fmt.Fprintf(os.Stderr, "Can't generate screenshot: %v\n", err)
+            log.Fatalf("Can't generate screenshot: %v", err)
             os.Exit(1)
         }
 
-        // fn := filepath.Join("/", fmt.Sprintf(viper.GetString("filename"), fn, i))
-        //writeImage(img, fn)
         timestamp := fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05"))
-        fmt.Printf("generating screenshot %02d/%02d at %s\n", i+1, viper.GetInt("numcaps"), timestamp)
+        log.Infof("generating screenshot %02d/%02d at %s", i+1, viper.GetInt("numcaps"), timestamp)
         var thumb image.Image
         if viper.GetInt("width") > 0 {
             thumb = imaging.Resize(img, viper.GetInt("width"), 0, imaging.Lanczos)
@@ -182,14 +165,16 @@ func GenerateScreenshots(fn string) []image.Image {
             thumb = imaging.Grayscale(thumb)
             thumb = imaging.Sharpen(thumb, 1.0)
             thumb = imaging.AdjustContrast(thumb, 20)
+            log.Debug("greyscale filter applied")
         case "invert":
             thumb = imaging.Invert(thumb)
+            log.Debug("invert filter applied")
         }
 
         if !viper.GetBool("disable_timestamps") && !viper.GetBool("single_images") {
+            log.Debug("adding timestamp to image")
             tsimage := drawTimestamp(timestamp)
             thumb = imaging.Overlay(thumb, tsimage, image.Pt(thumb.Bounds().Dx()-tsimage.Bounds().Dx()-10, thumb.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
-            //fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05"))
         }
 
         //watermark middle image
@@ -216,17 +201,15 @@ func GenerateScreenshots(fn string) []image.Image {
 }
 
 func makeContactSheet(thumbs []image.Image, fn string) {
-    fmt.Println("Composing Contact Sheet")
+    log.Info("Composing Contact Sheet")
     imgWidth := thumbs[0].Bounds().Dx()
     imgHeight := thumbs[0].Bounds().Dy()
 
     columns := viper.GetInt("columns")
     imgRows := int(math.Ceil(float64(len(thumbs)) / float64(columns)))
 
-    if viper.GetBool("verbose") {
-        fmt.Printf("Single Image: %dx%d\n", imgWidth, imgHeight)
-        fmt.Printf("New Image: %dx%d\n", imgWidth*columns, imgHeight*imgRows)
-    }
+    log.Debugf("single image dimension: %dx%d", imgWidth, imgHeight)
+    log.Debugf("new image dimension: %dx%d", imgWidth*columns, imgHeight*imgRows)
 
     paddingColumns := 0
     singlepadd := 0
@@ -245,13 +228,13 @@ func makeContactSheet(thumbs []image.Image, fn string) {
         g, _ = strconv.Atoi(strings.TrimSpace(bgColor[1]))
         b, _ = strconv.Atoi(strings.TrimSpace(bgColor[2]))
     } else {
-        fmt.Println("useing fallback bg_content: 0,0,0")
+        log.Info("useing fallback bg_content: 0,0,0")
         r, g, b = 0, 0, 0
     }
     dst := imaging.New(imgWidth*columns+paddingColumns, imgHeight*imgRows+paddingRows, color.RGBA{uint8(r), uint8(g), uint8(b), 255})
     x := 0
     curRow := 0
-    // paste thumbnails into the new image side by side
+    // paste thumbnails into the new image side by side with padding if enabled
     for _, thumb := range thumbs {
 
         if x >= columns {
@@ -275,7 +258,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
     }
 
     if viper.GetBool("header") {
-        fmt.Println("appending header informations")
+        log.Info("appending header informations")
         head := appendHeader(dst)
         newIm := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy()+head.Bounds().Dy(), color.RGBA{uint8(r), uint8(g), uint8(b), 255})
         dst = imaging.Paste(newIm, dst, image.Pt(0, head.Bounds().Dy()))
@@ -285,25 +268,21 @@ func makeContactSheet(thumbs []image.Image, fn string) {
     // save the combined image to file
     err := imaging.Save(dst, fn)
     if err != nil {
-        panic(err)
+        log.Fatalf("error saveing image: %v", err)
     }
-    fmt.Printf("Saved to %s\n", fn)
+    log.Infof("Saved to %s", fn)
 }
 
 func appendHeader(im image.Image) image.Image {
     var timestamped image.Image
-    // fontBytes, err := getFont(viper.GetString("font_all"))
 
-    // if err != nil {
-    //     fmt.Println(err)
-    //     return timestamped
-    // }
     font, err := freetype.ParseFont(fontBytes)
     if err != nil {
-        fmt.Println(err)
+        log.Errorf("freetype parse error", err)
         return timestamped
     }
 
+    // TODO: move this to a helper function!
     bgColor := strings.Split(viper.GetString("bg_header"), ",")
     var r, g, b int
     if len(bgColor) == 3 {
@@ -311,7 +290,7 @@ func appendHeader(im image.Image) image.Image {
         g, _ = strconv.Atoi(strings.TrimSpace(bgColor[1]))
         b, _ = strconv.Atoi(strings.TrimSpace(bgColor[2]))
     } else {
-        fmt.Println("useing fallback bg_header: 0,0,0")
+        log.Debug("useing fallback bg_header: 0,0,0")
         r, g, b = 0, 0, 0
     }
 
@@ -322,7 +301,7 @@ func appendHeader(im image.Image) image.Image {
         fg, _ = strconv.Atoi(strings.TrimSpace(fgColor[1]))
         fb, _ = strconv.Atoi(strings.TrimSpace(fgColor[2]))
     } else {
-        fmt.Println("useing fallback bg_header: 255,255,255")
+        log.Debug("useing fallback bg_header: 255,255,255")
         fr, fg, fb = 255, 255, 255
     }
 
@@ -344,7 +323,7 @@ func appendHeader(im image.Image) image.Image {
             if ov.Bounds().Dy() >= (rgba.Bounds().Dy() - 20) {
                 ov = imaging.Resize(ov, 0, rgba.Bounds().Dy()-20, imaging.Lanczos)
             }
-            //center image height
+            //center image inside header
             posY := (rgba.Bounds().Dy() - ov.Bounds().Dy()) / 2
             if posY < 10 {
                 posY = 10
@@ -352,7 +331,7 @@ func appendHeader(im image.Image) image.Image {
             rgba = imaging.Overlay(rgba, ov, image.Pt(rgba.Bounds().Dx()-ov.Bounds().Dx()-10, posY), 1.0)
 
         } else {
-            fmt.Println("error opening header overlay image")
+            log.Error("error opening header overlay image")
         }
     }
 
@@ -361,7 +340,7 @@ func appendHeader(im image.Image) image.Image {
     c.SetSrc(fontcolor)
 
     for i, s := range header {
-        //draw the text with 5px padding and lineheight +2
+        //draw the text with 10px padding and lineheight +4
         pt := freetype.Pt(10, (5 + int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*(i+1)))
         _, err = c.DrawString(s, pt)
         if err != nil {
@@ -387,29 +366,19 @@ func createHeader(fn string) []string {
     }
     fsize := fmt.Sprintf("File Size: %s", humanize.Bytes(uint64(stat.Size())))
     fname = fmt.Sprintf("File Name: %s", fname)
-    // fmt.Println(fsize, fname)
 
     gen, err := screengen.NewGenerator(fn)
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error reading video file: %v\n", err)
+        log.Errorf("Error reading video file: %v", err)
         os.Exit(1)
     }
     defer gen.Close()
 
-    //skip 4 minutes of duration to remove intro and credits
     duration := fmt.Sprintf("Duration: %s", time.Unix(gen.Duration/1000, 0).UTC().Format("15:04:05"))
-    // fmt.Println(duration)
 
     dimension := fmt.Sprintf("Resolution: %dx%d", gen.Width, gen.Height)
-    // fps := fmt.Sprintf("FPS: %f", gen.FPS)
 
-    // fmt.Println(gen.VideoCodec)
-    // codec := fmt.Sprintf("Codec: %s", gen.CodecName)
-
-    // fmt.Println(dimension, fps)
-    // fmt.Sprintf("%s \n %s \n %s", fname, fsize, duration)
     return []string{fname, fsize, duration, dimension}
-    //os.Exit(1)
 }
 
 var mpath string
@@ -484,10 +453,9 @@ func main() {
     viper.AddConfigPath("$HOME/.mt")
     viper.AddConfigPath("./")
 
-    err := viper.ReadInConfig() // Find and read the config file
-    if err != nil {             // Handle errors reading the config file
-        //panic(fmt.Errorf("Fatal error config file: %s \n", err))
-        fmt.Errorf("error reading config file: %s useing default values\n", err)
+    err := viper.ReadInConfig()
+    if err != nil {
+        fmt.Errorf("error reading config file: %s useing default values", err)
     }
 
     flag.Parse()
@@ -497,17 +465,22 @@ func main() {
         os.Exit(1)
     }
 
+    if viper.GetBool("verbose") {
+        log.SetLevel(log.DebugLevel)
+    }
+
     fontBytes, err = getFont(viper.GetString("font_all"))
     if err != nil {
-        fmt.Println("unable to load font, disableing timestamps and header")
+        log.Warn("unable to load font, disableing timestamps and header")
     }
 
     for _, movie := range flag.Args() {
         mpath = movie
-        fmt.Printf("generating contact sheet for %s\n", movie)
+        log.Infof("generating contact sheet for %s", movie)
 
         var thumbs []image.Image
         // thumbs = getImages(movie)
+        // TODO: implement generation of image contac sheets from a folder
         thumbs = GenerateScreenshots(movie)
         if viper.GetBool("single_images") {
             for i, thumb := range thumbs {
