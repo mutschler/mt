@@ -338,8 +338,8 @@ func appendHeader(im image.Image) image.Image {
 
     rgba := image.NewNRGBA(image.Rect(0, 0, im.Bounds().Dx(), (5+int(c.PointToFix32(float64(viper.GetInt("font_size")+4))>>8)*len(header))+10))
     draw.Draw(rgba, rgba.Bounds(), bg, image.ZP, draw.Src)
-    if viper.GetString("head_image") != "" {
-        ov, err := imaging.Open(viper.GetString("head_image"))
+    if viper.GetString("header_image") != "" {
+        ov, err := imaging.Open(viper.GetString("header_image"))
         if err == nil {
             if ov.Bounds().Dy() >= (rgba.Bounds().Dy() - 20) {
                 ov = imaging.Resize(ov, 0, rgba.Bounds().Dy()-20, imaging.Lanczos)
@@ -437,7 +437,7 @@ func main() {
     viper.SetDefault("font_dirs", []string{})
     viper.SetDefault("bg_header", "0,0,0")
     viper.SetDefault("fg_header", "255,255,255")
-    viper.SetDefault("head_image", "")
+    viper.SetDefault("header_image", "")
     viper.SetDefault("watermark", "")
     viper.SetDefault("filter", "none")
 
@@ -474,8 +474,8 @@ func main() {
     flag.String("bg-content", viper.GetString("bg_content"), "rgb background color for header")
     viper.BindPFlag("bg_content", flag.Lookup("bg-content"))
 
-    flag.String("head-image", viper.GetString("head_image"), "image to put in the header")
-    viper.BindPFlag("head_image", flag.Lookup("head-image"))
+    flag.String("header-image", viper.GetString("header_image"), "image to put in the header")
+    viper.BindPFlag("header_image", flag.Lookup("header-image"))
 
     viper.AutomaticEnv()
 
