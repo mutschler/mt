@@ -138,16 +138,25 @@ func GenerateScreenshots(fn string) []image.Image {
     }
     defer gen.Close()
 
-    inc := gen.Duration / int64(viper.GetInt("numcaps"))
+    duration := gen.Duration
+    percentage := int64((float32(gen.Duration/100)) * (5.5*2))
+    //cut of 2 minutes of video if video has at least 4 minutes else cut away (or at least 10.10%)
+    if duration > (120000*2) && 120000 > percentage {
+        duration = duration - 120000
+    } else {
+        duration = gen.Duration - percentage
+    }
+
+    inc := duration / (int64(viper.GetInt("numcaps")))
     if inc <= 60000 {
         fmt.Println("verry small timestamps in use... consider decreasing numcaps")
     }
     d := inc
     for i := 0; i < viper.GetInt("numcaps"); i++ {
-        // skip last 30 seconds if we got the last frame...
-        if i == viper.GetInt("numcaps")-1 {
-            d = d - 30000
-        }
+        // // skip last 30 seconds if we got the last frame...
+        // if i == viper.GetInt("numcaps")-1 {
+        //     d = d - 30000
+        // }
         img, err := gen.Image(d)
         if err != nil {
             fmt.Fprintf(os.Stderr, "Can't generate screenshot: %v\n", err)
@@ -414,7 +423,7 @@ func main() {
     viper.SetDefault("padding", 5)
     viper.SetDefault("width", 400)
     viper.SetDefault("height", 0)
-    viper.SetDefault("font_all", "Ubuntu.ttf")
+    viper.SetDefault("font_all", "DroidSans.ttf")
     viper.SetDefault("font_size", 12)
     viper.SetDefault("disable_timestamps", false)
     viper.SetDefault("timestamp_opacity", 1.0)
