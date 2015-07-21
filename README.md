@@ -6,8 +6,10 @@ mt is a lightweight media thumbnailer. it aims to be a simple and fast alternati
 
 `mt` uses depends on ffmpeg's libraries, so you'll need those installed and then run:
 
-`go get bitbucket.org/raphaelmutschler/mt`
-`go install bitbucket.org/raphaelmutschler/mt`
+```
+go get bitbucket.org/raphaelmutschler/mt
+go install bitbucket.org/raphaelmutschler/mt
+```
 
 ## Settings
 
@@ -41,7 +43,7 @@ alternatively you can set environment variables to change some of the settings a
 | header_image | "" | absolute path to an image that should be added to the header |
 | watermark | "" | absolute path to an watermark image that will be added to the middle image of the contact sheet |
 | filter | "none" | choose a filter to add to the thumbnails: "greyscale", "invert" |
-
+| skip_blank | false | try up to 3 times to skip a blank image (can slow down mt) |
 
 ## Usage
 
