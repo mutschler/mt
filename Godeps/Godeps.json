@@ -1,0 +1,116 @@
+{
+	"ImportPath": "bitbucket.org/raphaelmutschler/mt",
+	"GoVersion": "go1.4.1",
+	"Deps": [
+		{
+			"ImportPath": "code.google.com/p/jamslam-freetype-go/freetype",
+			"Comment": "release-27",
+			"Rev": "88153758681b085dfbea75697f173262035fda06"
+		},
+		{
+			"ImportPath": "github.com/BurntSushi/toml",
+			"Comment": "v0.1.0-21-g056c9bc",
+			"Rev": "056c9bc7be7190eaa7715723883caffa5f8fa3e4"
+		},
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.3-3-g07d998d",
+			"Rev": "07d998d174c4e2dc90e2f1989a20724220bca1ff"
+		},
+		{
+			"ImportPath": "github.com/armon/consul-api",
+			"Rev": "dcfedd50ed5334f96adee43fc88518a4f095e15c"
+		},
+		{
+			"ImportPath": "github.com/coreos/etcd/etcdserver/etcdhttp/httptypes",
+			"Comment": "v2.0.0-46-g38038e4",
+			"Rev": "38038e476a918427477fafd8c38de1cdca6fb84b"
+		},
+		{
+			"ImportPath": "github.com/coreos/etcd/pkg/types",
+			"Comment": "v2.0.0-46-g38038e4",
+			"Rev": "38038e476a918427477fafd8c38de1cdca6fb84b"
+		},
+		{
+			"ImportPath": "github.com/coreos/go-etcd/etcd",
+			"Comment": "v0.4.6-6-g4734e7a",
+			"Rev": "4734e7aca379f0d7fcdf04fbb2101696a4b45ce8"
+		},
+		{
+			"ImportPath": "github.com/cytec/screengen",
+			"Rev": "572e18f68c4ae8e6bc05fb3879da92e0a48e67c6"
+		},
+		{
+			"ImportPath": "github.com/disintegration/imaging",
+			"Rev": "3ab6ec550f20d497d2755ed3c48a3e45ad6b7eb9"
+		},
+		{
+			"ImportPath": "github.com/dustin/go-humanize",
+			"Rev": "145fabdb1ab757076a70a886d092a3af27f66f4c"
+		},
+		{
+			"ImportPath": "github.com/kr/pretty",
+			"Comment": "go.weekly.2011-12-22-26-gcb0850c",
+			"Rev": "cb0850c1681cbca3233e84f7e6ec3e4c3f352085"
+		},
+		{
+			"ImportPath": "github.com/kr/text",
+			"Rev": "6807e777504f54ad073ecef66747de158294b639"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "442e588f213303bec7936deba67901f8fc8f18b1"
+		},
+		{
+			"ImportPath": "github.com/spf13/cast",
+			"Rev": "2318c5caf29c12b280396d29a9912a0a0d616171"
+		},
+		{
+			"ImportPath": "github.com/spf13/jwalterweatherman",
+			"Rev": "3d60171a64319ef63c78bd45bd60e6eab1e75f8b"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Rev": "f82776d6cc998e3c026baef7b24409ff49fe5c8d"
+		},
+		{
+			"ImportPath": "github.com/spf13/viper",
+			"Rev": "d8f2aa78d42b618f51e668d0b7e05fe203f889de"
+		},
+		{
+			"ImportPath": "github.com/xordataexchange/crypt/backend",
+			"Comment": "v0.0.2-11-g0499a3c",
+			"Rev": "0499a3c94698e44032bd5fab8ba6f45672406678"
+		},
+		{
+			"ImportPath": "github.com/xordataexchange/crypt/config",
+			"Comment": "v0.0.2-11-g0499a3c",
+			"Rev": "0499a3c94698e44032bd5fab8ba6f45672406678"
+		},
+		{
+			"ImportPath": "github.com/xordataexchange/crypt/encoding/secconf",
+			"Comment": "v0.0.2-11-g0499a3c",
+			"Rev": "0499a3c94698e44032bd5fab8ba6f45672406678"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/cast5",
+			"Rev": "88b65fb66346493d43e735adad931bf69dee4297"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/openpgp",
+			"Rev": "88b65fb66346493d43e735adad931bf69dee4297"
+		},
+		{
+			"ImportPath": "golang.org/x/image/bmp",
+			"Rev": "92cae9f9bc8e839ff69ff99d3633f49bac6c9f8e"
+		},
+		{
+			"ImportPath": "golang.org/x/image/tiff",
+			"Rev": "92cae9f9bc8e839ff69ff99d3633f49bac6c9f8e"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v1",
+			"Rev": "9f9df34309c04878acc86042b16630b0f696e1de"
+		}
+	]
+}
