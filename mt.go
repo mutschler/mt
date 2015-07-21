@@ -23,6 +23,23 @@ import (
     "time"
 )
 
+var blankPixels int
+var allPixels int
+
+func countBlankPixels(c color.NRGBA) color.NRGBA {
+    //use 55?
+    if int(c.R) < 50 && int(c.G) < 50 && int(c.B) < 50 {
+        blankPixels = blankPixels + 1 
+    } else if int(c.R) > 205 && int(c.G) > 205 && int(c.B) > 205 {
+        blankPixels = blankPixels + 1 
+    }
+
+    allPixels = allPixels + 1
+
+    //fmt.Println(int(c.R), int(c.G), int(c.B))
+    return color.NRGBA{c.R, c.G, c.B, c.A}
+}
+
 func getFont(f string) ([]byte, error) {
     if !strings.HasSuffix(f, ".ttf") {
         f = fmt.Sprintf("%s.ttf", f)
@@ -116,6 +133,19 @@ func drawTimestamp(timestamp string) image.Image {
 
 }
 
+func blankImage(img image.Image) bool {
+    blankPixels = 0
+    allPixels = 0
+    img = imaging.AdjustFunc(img, countBlankPixels)
+    blankPercent := blankPixels / (allPixels / 100)
+    // log.Debugf("image is %d percent black", blackPercent)
+    if blankPercent >= 85 {
+        log.Warnf("image is %d percent black, dropping frame", blankPercent)
+        return true
+    }
+    return false
+}
+
 // generates screenshots and returns a list of images
 func GenerateScreenshots(fn string) []image.Image {
     var thumbnails []image.Image
@@ -148,6 +178,27 @@ func GenerateScreenshots(fn string) []image.Image {
             os.Exit(1)
         }
 
+        //try to detect images with a large black/white amount 
+        if viper.GetBool("skip_blank") {
+            maxCount := 3
+            count := 1
+            for blankImage(img) == true && maxCount >= count {
+                log.Warnf("saved image to: toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05")))
+                imaging.Save(img, fmt.Sprintf("toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05"))))
+                log.Warnf("[%d/%d] blank frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((d+10000)/1000, 0).UTC().Format("15:04:05")))
+                if (d >= duration - inc) {
+                    log.Error("end of clip reached... no more blank frames can be skipped")
+                    i = viper.GetInt("numcaps") - 1
+                    break
+                }
+                // log.Warnf("blank frame detected at: %s retry at: %s", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((d+10000)/1000, 0).UTC().Format("15:04:05")))
+                x := d + (10000 * int64(count))
+                img, _ = gen.Image(x)
+                count = count + 1
+            }
+        }
+        
+
         timestamp := fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05"))
         log.Infof("generating screenshot %02d/%02d at %s", i+1, viper.GetInt("numcaps"), timestamp)
         var thumb image.Image
@@ -171,11 +222,14 @@ func GenerateScreenshots(fn string) []image.Image {
             log.Debug("invert filter applied")
         }
 
+        
+
         if !viper.GetBool("disable_timestamps") && !viper.GetBool("single_images") {
             log.Debug("adding timestamp to image")
             tsimage := drawTimestamp(timestamp)
             thumb = imaging.Overlay(thumb, tsimage, image.Pt(thumb.Bounds().Dx()-tsimage.Bounds().Dx()-10, thumb.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
         }
+
 
         //watermark middle image
         if i == (viper.GetInt("numcaps")-1)/2 && viper.GetString("watermark") != "" {
@@ -409,6 +463,7 @@ func main() {
     viper.SetDefault("header_image", "")
     viper.SetDefault("watermark", "")
     viper.SetDefault("filter", "none")
+    viper.SetDefault("skip_blank", false)
 
     flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures")
     viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -425,13 +480,13 @@ func main() {
     flag.StringP("font", "f", viper.GetString("font_all"), "font to use for timestamps and header information")
     viper.BindPFlag("font_all", flag.Lookup("font_all"))
 
-    flag.BoolP("disable-timestamps", "d", true, "disable-timestamps")
+    flag.BoolP("disable-timestamps", "d", viper.GetBool("disable_timestamps"), "disable-timestamps")
     viper.BindPFlag("disable_timestamps", flag.Lookup("disable-timestamps"))
 
-    flag.BoolP("verbose", "v", true, "verbose output")
+    flag.BoolP("verbose", "v", viper.GetBool("verbose"), "verbose output")
     viper.BindPFlag("verbose", flag.Lookup("verbose"))
 
-    flag.BoolP("single-images", "s", true, "save single images instead of one combined contact sheet")
+    flag.BoolP("single-images", "s", viper.GetBool("single_images"), "save single images instead of one combined contact sheet")
     viper.BindPFlag("single_images", flag.Lookup("single-images"))
 
     flag.String("bg-header", viper.GetString("bg_header"), "rgb background color for header")
@@ -445,6 +500,9 @@ func main() {
 
     flag.String("header-image", viper.GetString("header_image"), "image to put in the header")
     viper.BindPFlag("header_image", flag.Lookup("header-image"))
+
+    flag.BoolP("skip-blank", "b", viper.GetBool("skip_blank"), "skip up to 3 images in a row which seem to be blank (can slow mt down)")
+    viper.BindPFlag("skip_blank", flag.Lookup("skip-blank"))
 
     viper.AutomaticEnv()
 
