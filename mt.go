@@ -171,7 +171,7 @@ func GenerateScreenshots(fn string) []image.Image {
     }
     d := inc
     for i := 0; i < viper.GetInt("numcaps"); i++ {
-
+        stamp := d
         img, err := gen.Image(d)
         if err != nil {
             log.Fatalf("Can't generate screenshot: %v", err)
@@ -192,14 +192,18 @@ func GenerateScreenshots(fn string) []image.Image {
                     break
                 }
                 // log.Warnf("blank frame detected at: %s retry at: %s", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((d+10000)/1000, 0).UTC().Format("15:04:05")))
-                x := d + (10000 * int64(count))
-                img, _ = gen.Image(x)
+                stamp = d + (10000 * int64(count))
+                img, _ = gen.Image(stamp)
                 count = count + 1
             }
         }
         
+        //if we skipped ahead of next frame...
+        // if stamp > d {
+        //     d = stamp
+        // }
 
-        timestamp := fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05"))
+        timestamp := fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05"))
         log.Infof("generating screenshot %02d/%02d at %s", i+1, viper.GetInt("numcaps"), timestamp)
         var thumb image.Image
         if viper.GetInt("width") > 0 {
