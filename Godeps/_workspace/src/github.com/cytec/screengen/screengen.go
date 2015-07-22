@@ -16,7 +16,7 @@
 // Screengen is a package for generating screenshots from video files.
 package screengen
 
-// #cgo LDFLAGS: -lavcodec -lavformat -lavutil -lswscale
+// #cgo pkg-config: libavcodec libavformat libavutil libswscale
 // #include <stdlib.h>
 // #include <libavcodec/avcodec.h>
 // #include <libavformat/avformat.h>
@@ -38,11 +38,14 @@ type Generator struct {
 	Height          int     // Height of the video
 	Duration        int64   // Duration of the video in milliseconds
 	VideoCodec      string  // Name of the video codec
-	CodecName	string  // Readable/long name of the video Codec
+	VideoCodecName  string  // Readable/long name of the video Codec
 	FPS             float64 // Frames Per Second
 	numberOfStreams int
+	AudioCodec      string	// Name of the audio codec
+	AudioCodecName  string	// readable/long name of the audio codec
 	vStreamIndex    int
-	bitrate         int
+	aStreamIndex	int
+	Bitrate         int
 	streams         []*C.struct_AVStream
 	avfContext      *C.struct_AVFormatContext
 	avcContext      *C.struct_AVCodecContext
@@ -74,10 +77,12 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 	}
 	streams := *(*[]*C.struct_AVStream)(unsafe.Pointer(&hdr))
 	vStreamIndex := -1
+	aStreamIndex := -1
 	for i := 0; i < numberOfStreams; i++ {
 		if streams[i].codec.codec_type == C.AVMEDIA_TYPE_VIDEO {
 			vStreamIndex = i
-			break
+		} else if streams[i].codec.codec_type == C.AVMEDIA_TYPE_AUDIO {
+			aStreamIndex = i
 		}
 	}
 	if vStreamIndex == -1 {
@@ -96,18 +101,32 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 	fps := (float64(streams[vStreamIndex].r_frame_rate.num) /
 		float64(streams[vStreamIndex].r_frame_rate.den))
 	vCodecName := strings.ToUpper(C.GoString(vCodec.name))
-	vCodecHuman := strings.ToUpper(C.GoString(vCodec.long_name))
-	
+	vCodecHuman := C.GoString(vCodec.long_name)
+
+	if aStreamIndex == -1 {
+		return nil, errors.New("no audio stream")
+	}
+	aacCtx := streams[aStreamIndex].codec
+	aCodec := C.avcodec_find_decoder(aacCtx.codec_id)
+	if aCodec == nil {
+		return nil, errors.New("can't find decoder")
+	}
+	aCodecName := strings.ToUpper(C.GoString(aCodec.name))
+	aCodecHuman := C.GoString(aCodec.long_name)
+
 	return &Generator{
 		Width:           width,
 		Height:          height,
 		Duration:        duration,
 		VideoCodec:      vCodecName,
-		CodecName:       vCodecHuman,
+		VideoCodecName:  vCodecHuman,
+		AudioCodec: 	 aCodecName,
+		AudioCodecName:  aCodecHuman,
 		numberOfStreams: numberOfStreams,
 		vStreamIndex:    vStreamIndex,
+		aStreamIndex: 	 aStreamIndex,
 		FPS:             fps,
-		bitrate:         bitrate,
+		Bitrate:         bitrate,
 		streams:         streams,
 		avfContext:      avfCtx,
 		avcContext:      avcCtx,
