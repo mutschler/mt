@@ -25,6 +25,9 @@ import (
 
 var blankPixels int
 var allPixels int
+var mpath string
+var fontBytes []byte
+var version string = "1.0"
 
 func countBlankPixels(c color.NRGBA) color.NRGBA {
     //use 55?
@@ -439,8 +442,6 @@ func createHeader(fn string) []string {
     return []string{fname, fsize, duration, dimension}
 }
 
-var mpath string
-var fontBytes []byte
 
 func main() {
     viper.SetConfigName("mt")
@@ -508,6 +509,9 @@ func main() {
     flag.BoolP("skip-blank", "b", viper.GetBool("skip_blank"), "skip up to 3 images in a row which seem to be blank (can slow mt down)")
     viper.BindPFlag("skip_blank", flag.Lookup("skip-blank"))
 
+    flag.Bool("version", false, "show version number and exit")
+    viper.BindPFlag("show_version", flag.Lookup("version"))
+
     viper.AutomaticEnv()
 
     viper.SetConfigType("json")
@@ -515,12 +519,22 @@ func main() {
     viper.AddConfigPath("$HOME/.mt")
     viper.AddConfigPath("./")
 
+    flag.Usage = func() {
+        fmt.Fprintf(os.Stderr, "Usage of %s: [flags] [file]\n", os.Args[0])
+        flag.PrintDefaults()
+    }
+
     err := viper.ReadInConfig()
     if err != nil {
         fmt.Errorf("error reading config file: %s useing default values", err)
     }
 
     flag.Parse()
+
+    if viper.GetBool("show_version") {
+        fmt.Fprintf(os.Stderr, "mt Version %s\n", version)
+        os.Exit(1)
+    }
 
     if len(flag.Args()) == 0 {
         flag.Usage()
