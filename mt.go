@@ -27,7 +27,7 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0"
+var version string = "1.0.1"
 
 func countBlankPixels(c color.NRGBA) color.NRGBA {
     //use 55?
@@ -39,7 +39,6 @@ func countBlankPixels(c color.NRGBA) color.NRGBA {
 
     allPixels = allPixels + 1
 
-    //fmt.Println(int(c.R), int(c.G), int(c.B))
     return color.NRGBA{c.R, c.G, c.B, c.A}
 }
 
@@ -186,8 +185,8 @@ func GenerateScreenshots(fn string) []image.Image {
             maxCount := 3
             count := 1
             for blankImage(img) == true && maxCount >= count {
-                log.Warnf("saved image to: toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05")))
-                imaging.Save(img, fmt.Sprintf("toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05"))))
+                // log.Warnf("saved image to: toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05")))
+                // imaging.Save(img, fmt.Sprintf("toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05"))))
                 log.Warnf("[%d/%d] blank frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((d+10000)/1000, 0).UTC().Format("15:04:05")))
                 if (d >= duration - inc) {
                     log.Error("end of clip reached... no more blank frames can be skipped")
