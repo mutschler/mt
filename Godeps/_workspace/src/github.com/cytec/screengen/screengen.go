@@ -34,21 +34,21 @@ import (
 
 // Generator is used to generate screenshots from a video file.
 type Generator struct {
-	Width           int     // Width of the video
-	Height          int     // Height of the video
-	Duration        int64   // Duration of the video in milliseconds
-	VideoCodec      string  // Name of the video codec
-	VideoCodecName  string  // Readable/long name of the video Codec
-	FPS             float64 // Frames Per Second
-	numberOfStreams int
-	AudioCodec      string	// Name of the audio codec
-	AudioCodecName  string	// readable/long name of the audio codec
-	vStreamIndex    int
-	aStreamIndex	int
-	Bitrate         int
-	streams         []*C.struct_AVStream
-	avfContext      *C.struct_AVFormatContext
-	avcContext      *C.struct_AVCodecContext
+	Width              int     // Width of the video
+	Height             int     // Height of the video
+	Duration           int64   // Duration of the video in milliseconds
+	VideoCodec         string  // Name of the video codec
+	VideoCodecLongName string  // Readable/long name of the video Codec
+	FPS                float64 // Frames Per Second
+	numberOfStreams    int
+	AudioCodec         string // Name of the audio codec
+	AudioCodecLongName string // readable/long name of the audio codec
+	vStreamIndex       int
+	aStreamIndex       int
+	Bitrate            int
+	streams            []*C.struct_AVStream
+	avfContext         *C.struct_AVFormatContext
+	avcContext         *C.struct_AVCodecContext
 }
 
 // NewGenerator returns new generator of screenshots for the video file fn.
@@ -115,21 +115,21 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 	aCodecHuman := C.GoString(aCodec.long_name)
 
 	return &Generator{
-		Width:           width,
-		Height:          height,
-		Duration:        duration,
-		VideoCodec:      vCodecName,
-		VideoCodecName:  vCodecHuman,
-		AudioCodec: 	 aCodecName,
-		AudioCodecName:  aCodecHuman,
-		numberOfStreams: numberOfStreams,
-		vStreamIndex:    vStreamIndex,
-		aStreamIndex: 	 aStreamIndex,
-		FPS:             fps,
-		Bitrate:         bitrate,
-		streams:         streams,
-		avfContext:      avfCtx,
-		avcContext:      avcCtx,
+		Width:              width,
+		Height:             height,
+		Duration:           duration,
+		VideoCodec:         vCodecName,
+		VideoCodecLongName: vCodecHuman,
+		AudioCodec:         aCodecName,
+		AudioCodecLongName: aCodecHuman,
+		numberOfStreams:    numberOfStreams,
+		vStreamIndex:       vStreamIndex,
+		aStreamIndex:       aStreamIndex,
+		FPS:                fps,
+		Bitrate:            bitrate,
+		streams:            streams,
+		avfContext:         avfCtx,
+		avcContext:         avcCtx,
 	}, nil
 }
 
