@@ -2,7 +2,6 @@ package main
 
 import (
     "code.google.com/p/jamslam-freetype-go/freetype"
-    "code.google.com/p/jamslam-freetype-go/freetype/truetype"
     "fmt"
     log "github.com/Sirupsen/logrus"
     "github.com/cytec/screengen"
@@ -13,7 +12,6 @@ import (
     "image"
     "image/color"
     "image/draw"
-    "image/jpeg"
     "io/ioutil"
     "math"
     "os"
@@ -66,39 +64,24 @@ func getFont(f string) ([]byte, error) {
     return Asset("DroidSans.ttf")
 }
 
-func writeImage(img image.Image, fn string) {
-    f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0644)
-    if err != nil {
-        log.Fatalf("Can't create file: %v", err)
-        os.Exit(1)
+//takes a string "0,0,0" and returns the RGBA color
+func getImageColor(s string, fallback []int) color.RGBA {
+    colors := strings.Split(s, ",")
+    var r, g, b int
+    if len(colors) == 3 {
+        r, _ = strconv.Atoi(strings.TrimSpace(colors[0]))
+        g, _ = strconv.Atoi(strings.TrimSpace(colors[1]))
+        b, _ = strconv.Atoi(strings.TrimSpace(colors[2]))
+        log.Debugf("color %s converted to [%d %d %d]", s, r, g, b)
+    } else {
+        log.Warnf("error converting %s to a valid color, useing fallback color: %v", s, fallback)
+        r, g, b = fallback[0], fallback[1], fallback[2]
     }
-    defer f.Close()
-
-    err = jpeg.Encode(f, img, &jpeg.Options{Quality: 85})
-    if err != nil {
-        log.Fatalf("JPEG encoding error: %v", err)
-        os.Exit(1)
-    }
-}
-
-func Width(s string, f *truetype.Font) int {
-    // scale converts truetype.FUnit to float64
-    scale := float64(viper.GetInt("font_size")) / float64(f.FUnitsPerEm())
-
-    width := 0
-    prev, hasPrev := truetype.Index(0), false
-    for _, rune := range s {
-        index := f.Index(rune)
-        if hasPrev {
-            width += int(f.Kerning(f.FUnitsPerEm(), prev, index))
-        }
-        width += int(f.HMetric(f.FUnitsPerEm(), index).AdvanceWidth)
-        prev, hasPrev = index, true
-    }
-    return int(float64(width)*scale) + 10
+    return color.RGBA{uint8(r), uint8(g), uint8(b), 255}
 }
 
 //gets the timestamp value ("HH:MM:SS") and returns an image
+//TODO: rework this to take any string and a bool for full width/centered text
 func drawTimestamp(timestamp string) image.Image {
     var timestamped image.Image
 
@@ -136,7 +119,7 @@ func drawTimestamp(timestamp string) image.Image {
 
 }
 
-func blankImage(img image.Image) bool {
+func isBlankImage(img image.Image) bool {
     blankPixels = 0
     allPixels = 0
     img = imaging.AdjustFunc(img, countBlankPixels)
@@ -172,6 +155,9 @@ func GenerateScreenshots(fn string) []image.Image {
     if inc <= 60000 {
         log.Warn("very small timestamps in use... consider decreasing numcaps")
     }
+    if inc <= 9000 {
+        log.Errorf("interval (%ds) is way to small (less then 9s), please decrease numcaps", inc/1000)
+    }
     d := inc
     for i := 0; i < viper.GetInt("numcaps"); i++ {
         stamp := d
@@ -185,26 +171,23 @@ func GenerateScreenshots(fn string) []image.Image {
         if viper.GetBool("skip_blank") {
             maxCount := 3
             count := 1
-            for blankImage(img) == true && maxCount >= count {
-                // log.Warnf("saved image to: toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05")))
-                // imaging.Save(img, fmt.Sprintf("toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05"))))
+            for isBlankImage(img) == true && maxCount >= count {
                 log.Warnf("[%d/%d] blank frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((d+10000)/1000, 0).UTC().Format("15:04:05")))
                 if d >= duration-inc {
                     log.Error("end of clip reached... no more blank frames can be skipped")
                     i = viper.GetInt("numcaps") - 1
                     break
                 }
-                // log.Warnf("blank frame detected at: %s retry at: %s", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((d+10000)/1000, 0).UTC().Format("15:04:05")))
                 stamp = d + (10000 * int64(count))
                 img, _ = gen.Image(stamp)
                 count = count + 1
             }
         }
 
-        //if we skipped ahead of next frame...
-        // if stamp > d {
-        //     d = stamp
-        // }
+        // if we skipped ahead of next frame...
+        if stamp > d {
+            d = stamp
+        }
 
         timestamp := fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05"))
         log.Infof("generating screenshot %02d/%02d at %s", i+1, viper.GetInt("numcaps"), timestamp)
@@ -251,7 +234,7 @@ func GenerateScreenshots(fn string) []image.Image {
         if viper.GetBool("single_images") {
             path, fname := filepath.Split(mpath)
             filename := filepath.Join(path, fmt.Sprintf("%s-%02d.jpg", fname, i+1))
-            go imaging.Save(img, filename)
+            imaging.Save(img, filename)
         } else {
             thumbnails = append(thumbnails, img)
         }
@@ -283,17 +266,8 @@ func makeContactSheet(thumbs []image.Image, fn string) {
     }
 
     // create a new blank image
-    bgColor := strings.Split(viper.GetString("bg_content"), ",")
-    var r, g, b int
-    if len(bgColor) == 3 {
-        r, _ = strconv.Atoi(strings.TrimSpace(bgColor[0]))
-        g, _ = strconv.Atoi(strings.TrimSpace(bgColor[1]))
-        b, _ = strconv.Atoi(strings.TrimSpace(bgColor[2]))
-    } else {
-        log.Info("useing fallback bg_content: 0,0,0")
-        r, g, b = 0, 0, 0
-    }
-    dst := imaging.New(imgWidth*columns+paddingColumns, imgHeight*imgRows+paddingRows, color.RGBA{uint8(r), uint8(g), uint8(b), 255})
+    bgColor := getImageColor(viper.GetString("bg_content"), []int{0,0,0})
+    dst := imaging.New(imgWidth*columns+paddingColumns, imgHeight*imgRows+paddingRows, bgColor)
     x := 0
     curRow := 0
     // paste thumbnails into the new image side by side with padding if enabled
@@ -322,7 +296,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
     if viper.GetBool("header") {
         log.Info("appending header informations")
         head := appendHeader(dst)
-        newIm := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy()+head.Bounds().Dy(), color.RGBA{uint8(r), uint8(g), uint8(b), 255})
+        newIm := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy()+head.Bounds().Dy(), bgColor)
         dst = imaging.Paste(newIm, dst, image.Pt(0, head.Bounds().Dy()))
         dst = imaging.Paste(dst, head, image.Pt(0, 0))
     }
@@ -345,29 +319,11 @@ func appendHeader(im image.Image) image.Image {
     }
 
     // TODO: move this to a helper function!
-    bgColor := strings.Split(viper.GetString("bg_header"), ",")
-    var r, g, b int
-    if len(bgColor) == 3 {
-        r, _ = strconv.Atoi(strings.TrimSpace(bgColor[0]))
-        g, _ = strconv.Atoi(strings.TrimSpace(bgColor[1]))
-        b, _ = strconv.Atoi(strings.TrimSpace(bgColor[2]))
-    } else {
-        log.Debug("useing fallback bg_header: 0,0,0")
-        r, g, b = 0, 0, 0
-    }
+    bgColor := getImageColor(viper.GetString("bg_header"), []int{0,0,0})
 
-    fgColor := strings.Split(viper.GetString("fg_header"), ",")
-    var fr, fg, fb int
-    if len(fgColor) == 3 {
-        fr, _ = strconv.Atoi(strings.TrimSpace(fgColor[0]))
-        fg, _ = strconv.Atoi(strings.TrimSpace(fgColor[1]))
-        fb, _ = strconv.Atoi(strings.TrimSpace(fgColor[2]))
-    } else {
-        log.Debug("useing fallback bg_header: 255,255,255")
-        fr, fg, fb = 255, 255, 255
-    }
+    fgColor := getImageColor(viper.GetString("fg_header"), []int{255,255,255})
 
-    fontcolor, bg := image.NewUniform(color.RGBA{uint8(fr), uint8(fg), uint8(fb), 255}), image.NewUniform(color.RGBA{uint8(r), uint8(g), uint8(b), 255})
+    fontcolor, bg := image.NewUniform(fgColor), image.NewUniform(bgColor)
     c := freetype.NewContext()
     c.SetDPI(96)
     c.SetFont(font)
