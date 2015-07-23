@@ -371,6 +371,8 @@ func appendHeader(im image.Image) image.Image {
 }
 
 func createHeader(fn string) []string {
+
+    var header []string
     _, fname := filepath.Split(fn)
 
     f, err := os.Open(fn)
@@ -396,7 +398,17 @@ func createHeader(fn string) []string {
 
     dimension := fmt.Sprintf("Resolution: %dx%d", gen.Width, gen.Height)
 
-    return []string{fname, fsize, duration, dimension}
+    header = append(header, fname)
+    header = append(header, fsize)
+    header = append(header, duration)
+    header = append(header, dimension)
+
+    if viper.GetBool("header_meta") {
+        header = append(header, fmt.Sprintf("FPS: %.2f, Bitrate: %dKbp/s", gen.FPS, gen.Bitrate))
+        header = append(header, fmt.Sprintf("Codec: %s / %s", gen.VideoCodecLongName,  gen.AudioCodecLongName))
+    }
+
+    return header
 }
 
 func main() {
@@ -424,6 +436,7 @@ func main() {
     viper.SetDefault("bg_header", "0,0,0")
     viper.SetDefault("fg_header", "255,255,255")
     viper.SetDefault("header_image", "")
+    viper.SetDefault("header_meta", false)
     viper.SetDefault("watermark", "")
     viper.SetDefault("filter", "none")
     viper.SetDefault("skip_blank", false)
@@ -469,6 +482,12 @@ func main() {
 
     flag.Bool("version", false, "show version number and exit")
     viper.BindPFlag("show_version", flag.Lookup("version"))
+
+    flag.Bool("header", viper.GetBool("header"), "append header to the contact sheet")
+    viper.BindPFlag("header", flag.Lookup("header"))
+
+    flag.Bool("header-meta", viper.GetBool("header_meta"), "append codec, fps and bitrate informations to the header")
+    viper.BindPFlag("header_meta", flag.Lookup("header-meta"))
 
     viper.AutomaticEnv()
 
