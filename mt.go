@@ -18,6 +18,7 @@ import (
     "math"
     "os"
     "path/filepath"
+    "runtime"
     "strconv"
     "strings"
     "time"
@@ -27,14 +28,14 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.1"
+var version string = "1.0.2"
 
 func countBlankPixels(c color.NRGBA) color.NRGBA {
     //use 55?
     if int(c.R) < 50 && int(c.G) < 50 && int(c.B) < 50 {
-        blankPixels = blankPixels + 1 
+        blankPixels = blankPixels + 1
     } else if int(c.R) > 205 && int(c.G) > 205 && int(c.B) > 205 {
-        blankPixels = blankPixels + 1 
+        blankPixels = blankPixels + 1
     }
 
     allPixels = allPixels + 1
@@ -169,7 +170,7 @@ func GenerateScreenshots(fn string) []image.Image {
 
     inc := duration / (int64(viper.GetInt("numcaps")))
     if inc <= 60000 {
-        log.Warn("verry small timestamps in use... consider decreasing numcaps")
+        log.Warn("very small timestamps in use... consider decreasing numcaps")
     }
     d := inc
     for i := 0; i < viper.GetInt("numcaps"); i++ {
@@ -180,7 +181,7 @@ func GenerateScreenshots(fn string) []image.Image {
             os.Exit(1)
         }
 
-        //try to detect images with a large black/white amount 
+        //try to detect images with a large black/white amount
         if viper.GetBool("skip_blank") {
             maxCount := 3
             count := 1
@@ -188,7 +189,7 @@ func GenerateScreenshots(fn string) []image.Image {
                 // log.Warnf("saved image to: toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05")))
                 // imaging.Save(img, fmt.Sprintf("toblack-%s.jpg", fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15-04-05"))))
                 log.Warnf("[%d/%d] blank frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((d+10000)/1000, 0).UTC().Format("15:04:05")))
-                if (d >= duration - inc) {
+                if d >= duration-inc {
                     log.Error("end of clip reached... no more blank frames can be skipped")
                     i = viper.GetInt("numcaps") - 1
                     break
@@ -199,7 +200,7 @@ func GenerateScreenshots(fn string) []image.Image {
                 count = count + 1
             }
         }
-        
+
         //if we skipped ahead of next frame...
         // if stamp > d {
         //     d = stamp
@@ -207,53 +208,54 @@ func GenerateScreenshots(fn string) []image.Image {
 
         timestamp := fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05"))
         log.Infof("generating screenshot %02d/%02d at %s", i+1, viper.GetInt("numcaps"), timestamp)
-        var thumb image.Image
+        //var thumb image.Image
         if viper.GetInt("width") > 0 {
-            thumb = imaging.Resize(img, viper.GetInt("width"), 0, imaging.Lanczos)
+            img = imaging.Resize(img, viper.GetInt("width"), 0, imaging.Lanczos)
         } else if viper.GetInt("width") == 0 && viper.GetInt("height") > 0 {
-            thumb = imaging.Resize(img, 0, viper.GetInt("height"), imaging.Lanczos)
-        } else {
-            thumb = img
+            img = imaging.Resize(img, 0, viper.GetInt("height"), imaging.Lanczos)
         }
 
         //apply filters
         switch viper.GetString("filter") {
         case "greyscale":
-            thumb = imaging.Grayscale(thumb)
-            thumb = imaging.Sharpen(thumb, 1.0)
-            thumb = imaging.AdjustContrast(thumb, 20)
+            img = imaging.Grayscale(img)
+            img = imaging.Sharpen(img, 1.0)
+            img = imaging.AdjustContrast(img, 20)
             log.Debug("greyscale filter applied")
         case "invert":
-            thumb = imaging.Invert(thumb)
+            img = imaging.Invert(img)
             log.Debug("invert filter applied")
         }
-
-        
 
         if !viper.GetBool("disable_timestamps") && !viper.GetBool("single_images") {
             log.Debug("adding timestamp to image")
             tsimage := drawTimestamp(timestamp)
-            thumb = imaging.Overlay(thumb, tsimage, image.Pt(thumb.Bounds().Dx()-tsimage.Bounds().Dx()-10, thumb.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
+            img = imaging.Overlay(img, tsimage, image.Pt(img.Bounds().Dx()-tsimage.Bounds().Dx()-10, img.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
         }
-
 
         //watermark middle image
         if i == (viper.GetInt("numcaps")-1)/2 && viper.GetString("watermark") != "" {
             ov, err := imaging.Open(viper.GetString("watermark"))
             if err == nil {
-                if ov.Bounds().Dx() > thumb.Bounds().Dx() {
-                    ov = imaging.Resize(ov, thumb.Bounds().Dx(), 0, imaging.Lanczos)
+                if ov.Bounds().Dx() > img.Bounds().Dx() {
+                    ov = imaging.Resize(ov, img.Bounds().Dx(), 0, imaging.Lanczos)
                 }
-                if ov.Bounds().Dy() > thumb.Bounds().Dy() {
-                    ov = imaging.Resize(ov, 0, thumb.Bounds().Dy(), imaging.Lanczos)
+                if ov.Bounds().Dy() > img.Bounds().Dy() {
+                    ov = imaging.Resize(ov, 0, img.Bounds().Dy(), imaging.Lanczos)
                 }
-                posX := (thumb.Bounds().Dx() - ov.Bounds().Dx()) / 2
-                posY := (thumb.Bounds().Dy() - ov.Bounds().Dy()) / 2
-                thumb = imaging.Overlay(thumb, ov, image.Pt(posX, posY), 0.6)
+                posX := (img.Bounds().Dx() - ov.Bounds().Dx()) / 2
+                posY := (img.Bounds().Dy() - ov.Bounds().Dy()) / 2
+                img = imaging.Overlay(img, ov, image.Pt(posX, posY), 0.6)
             }
         }
+        if viper.GetBool("single_images") {
+            path, fname := filepath.Split(mpath)
+            filename := filepath.Join(path, fmt.Sprintf("%s-%02d.jpg", fname, i+1))
+            go imaging.Save(img, filename)
+        } else {
+            thumbnails = append(thumbnails, img)
+        }
 
-        thumbnails = append(thumbnails, thumb)
         d += inc
     }
 
@@ -441,8 +443,9 @@ func createHeader(fn string) []string {
     return []string{fname, fsize, duration, dimension}
 }
 
-
 func main() {
+
+    runtime.GOMAXPROCS(runtime.NumCPU())
     viper.SetConfigName("mt")
     viper.SetEnvPrefix("mt")
     viper.SetDefault("numcaps", 4)
@@ -557,13 +560,7 @@ func main() {
         // thumbs = getImages(movie)
         // TODO: implement generation of image contac sheets from a folder
         thumbs = GenerateScreenshots(movie)
-        if viper.GetBool("single_images") {
-            for i, thumb := range thumbs {
-                path, fname := filepath.Split(movie)
-                newPath := filepath.Join(path, fmt.Sprintf("%s-%02d.jpg", fname, i+1))
-                writeImage(thumb, newPath)
-            }
-        } else {
+        if len(thumbs) > 0 {
             makeContactSheet(thumbs, fmt.Sprintf(viper.GetString("filename"), movie))
         }
 
