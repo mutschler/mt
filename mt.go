@@ -8,11 +8,13 @@ import (
     "github.com/disintegration/imaging"
     "github.com/dustin/go-humanize"
     flag "github.com/spf13/pflag"
+    "github.com/disintegration/gift"
     "github.com/spf13/viper"
     "image"
     "image/color"
     "image/draw"
     "io/ioutil"
+    "math/rand"
     "math"
     "os"
     "path/filepath"
@@ -27,6 +29,11 @@ var allPixels int
 var mpath string
 var fontBytes []byte
 var version string = "1.0.2"
+
+func randomInt(min, max int) float32 {
+    rand.Seed(time.Now().UTC().UnixNano())
+    return float32(rand.Intn(max - min) + min)
+}
 
 func countBlankPixels(c color.NRGBA) color.NRGBA {
     //use 55?
@@ -198,17 +205,48 @@ func GenerateScreenshots(fn string) []image.Image {
             img = imaging.Resize(img, 0, viper.GetInt("height"), imaging.Lanczos)
         }
 
+        
+
         //apply filters
-        switch viper.GetString("filter") {
-        case "greyscale":
-            img = imaging.Grayscale(img)
-            img = imaging.Sharpen(img, 1.0)
-            img = imaging.AdjustContrast(img, 20)
-            log.Debug("greyscale filter applied")
-        case "invert":
-            img = imaging.Invert(img)
-            log.Debug("invert filter applied")
+        filters := strings.Split(viper.GetString("filter"),",")
+        for _, filter := range filters {
+            switch filter {
+                case "greyscale":
+                    img = imaging.Grayscale(img)
+                    img = imaging.Sharpen(img, 1.0)
+                    img = imaging.AdjustContrast(img, 20)
+                    log.Debug("greyscale filter applied")
+                case "invert":
+                    img = imaging.Invert(img)
+                    log.Debug("invert filter applied")
+                case "fancy":
+                    //TODO: find a way to do this without GIFT...
+                    log.Debug("fancy filter applied")
+                    //draw timestamp to the image before rotating it!
+                    tsimage := drawTimestamp(timestamp)
+                    img = imaging.Overlay(img, tsimage, image.Pt(img.Bounds().Dx()-tsimage.Bounds().Dx()-10, img.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
+    
+                    g := gift.New(
+                        gift.Rotate(randomInt(-10,15), getImageColor(viper.GetString("bg_content"), []int{0,0,0}), gift.CubicInterpolation),
+                    )
+                    dst := image.NewRGBA(g.Bounds(img.Bounds()))
+                    g.Draw(dst, img)
+                    img = dst
+                    viper.Set("disable_timestamps", true )
+                case "sepia":
+                    log.Debug("sepia filter applied")    
+                    g := gift.New(
+                        gift.Sepia(100),
+                    )
+                    dst := image.NewRGBA(g.Bounds(img.Bounds()))
+                    g.Draw(dst, img)
+                    img = dst
+                case "cross":
+                    log.Debug("cross filter applied")   
+                    img = CrossProcessing(img, 0.5, 9)
+            }
         }
+        
 
         if !viper.GetBool("disable_timestamps") && !viper.GetBool("single_images") {
             log.Debug("adding timestamp to image")
@@ -456,6 +494,9 @@ func main() {
     flag.StringP("font", "f", viper.GetString("font_all"), "font to use for timestamps and header information")
     viper.BindPFlag("font_all", flag.Lookup("font_all"))
 
+    flag.Int("font-size", viper.GetInt("font_size"), "font size in px")
+    viper.BindPFlag("font_size", flag.Lookup("font-size"))
+
     flag.BoolP("disable-timestamps", "d", viper.GetBool("disable_timestamps"), "disable-timestamps")
     viper.BindPFlag("disable_timestamps", flag.Lookup("disable-timestamps"))
 
@@ -489,6 +530,12 @@ func main() {
     flag.Bool("header-meta", viper.GetBool("header_meta"), "append codec, fps and bitrate informations to the header")
     viper.BindPFlag("header_meta", flag.Lookup("header-meta"))
 
+    flag.String("filter", viper.GetString("filter"), "apply filter to images, see --list-filters for available filters")
+    viper.BindPFlag("filter", flag.Lookup("filter"))
+
+    flag.Bool("filters", false, "list all available filters")
+    viper.BindPFlag("filters", flag.Lookup("filters"))
+
     viper.AutomaticEnv()
 
     viper.SetConfigType("json")
@@ -510,6 +557,29 @@ func main() {
 
     if viper.GetBool("show_version") {
         fmt.Fprintf(os.Stderr, "mt Version %s\n", version)
+        os.Exit(1)
+    }
+
+    if viper.GetBool("filters") {
+allFilters := `available image filters:
+
+| NAME      | DESCRIPTION                  |
+| --------- | ---------------------------- |
+| invert    | invert colors                |
+| greyscale | convert to greyscale image   |
+| sepia     | convert to sepia image       |
+| fancy     | randomly rotates every image |
+| cross     | simulated cross processing   |
+
+you can stack multiple filters by seperating them with a comma
+example:
+
+    --filter=cross,fancy 
+
+NOTE: fancy has best results if it is applied as last filter!
+
+`
+        fmt.Fprintf(os.Stderr, allFilters)
         os.Exit(1)
     }
 

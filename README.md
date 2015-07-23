@@ -13,15 +13,15 @@ go install bitbucket.org/raphaelmutschler/mt
 
 ## Settings
 
-Settings can be alternated via config files in JSON format, there are 3 directories in which the config can be saved:
+Default Settings can be alternated via config files in JSON format, there are 3 directories in which the config can be saved:
 
 `/etc/mt/`, `$HOME/.mt/` and the current directory
 
 just create a file called `md.json` in any of this locations to change the settings...
 
-alternatively you can set environment variables to change some of the settings at run time. env vars use the `MT_` prefix:
+to change settings on runtime you can either use the provided pflags (mt --help for more info) or set environment Variables with the `MT_` prefix:
 
-`MT_NUMCAPS=20 mt myvideo.mkv` will change the numcaps settings to 20 for this run only
+`mt --numcaps=20 myvideo.mkg` will change the numcaps settings to 20 for this run only, so will `MT_NUMCAPS=20 mt myvideo.mkv` 
 
 ## Available Config Options:
 
@@ -42,7 +42,7 @@ alternatively you can set environment variables to change some of the settings a
 | fg_header | "255,255,255" | header font color |
 | header_image | "" | absolute path to an image that should be added to the header |
 | watermark | "" | absolute path to an watermark image that will be added to the middle image of the contact sheet |
-| filter | "none" | choose a filter to add to the thumbnails: "greyscale", "invert" |
+| filter | "none" | choose a filter to add to the thumbnails: "greyscale", "invert", "fancy", "cross" |
 | skip_blank | false | try up to 3 times to skip a blank image (can slow down mt) |
 
 ## Usage
