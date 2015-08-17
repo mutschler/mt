@@ -20,15 +20,17 @@ import (
     "path/filepath"
     "runtime"
     "strconv"
+    "bytes"
     "strings"
     "time"
+    "text/template"
 )
 
 var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.2"
+var version string = "1.0.2-dev"
 
 func randomInt(min, max int) float32 {
     rand.Seed(time.Now().UTC().UnixNano())
@@ -270,9 +272,9 @@ func GenerateScreenshots(fn string) []image.Image {
             }
         }
         if viper.GetBool("single_images") {
-            path, fname := filepath.Split(mpath)
-            filename := filepath.Join(path, fmt.Sprintf("%s-%02d.jpg", fname, i+1))
-            imaging.Save(img, filename)
+            fname := getSavePath(mpath, i+1)
+            createTargetDirs(fname)
+            imaging.Save(img, fname)
         } else {
             thumbnails = append(thumbnails, img)
         }
@@ -281,6 +283,11 @@ func GenerateScreenshots(fn string) []image.Image {
     }
 
     return thumbnails
+}
+
+func createTargetDirs(fn string) {
+    path, _ := filepath.Split(fn)
+    os.MkdirAll(path, 0777)
 }
 
 func makeContactSheet(thumbs []image.Image, fn string) {
@@ -340,6 +347,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
     }
 
     // save the combined image to file
+    createTargetDirs(fn)
     err := imaging.Save(dst, fn)
     if err != nil {
         log.Fatalf("error saveing image: %v", err)
@@ -449,6 +457,43 @@ func createHeader(fn string) []string {
     return header
 }
 
+type FileInfo struct {
+    Name string
+    Ext string
+    Path string
+    Count string
+}
+
+//gets a filename (string) and returns the absolute path to save the image to...
+func getSavePath(filename string, c int) string {
+    if(viper.GetString("filename") == "%s.jpg") {
+        return fmt.Sprintf(viper.GetString("filename"), filename)
+    }
+
+    out := viper.GetString("filename")
+
+    fx := FileInfo{}
+    fx.Path, fx.Name = filepath.Split(filename)
+    fx.Ext = filepath.Ext(filename)
+    fx.Name = strings.Replace(fx.Name, fx.Ext, "", -1)
+    fx.Count = fmt.Sprintf("%02d", c)
+    if c > 0 {
+        if !strings.Contains(out, "{{.Count}}") {
+            out = strings.Replace(out, ".jpg", "-{{.Count}}.jpg", 1)
+        }
+    } 
+    
+
+    t := template.Must(template.New("filepath").Parse(out))
+    buf := new(bytes.Buffer)
+    t.Execute(buf, &fx)
+
+    if buf.String() == "" {
+        return strings.Replace(filename, fx.Ext, ".jpg", -1)
+    }
+    return buf.String()
+}
+
 func main() {
 
     runtime.GOMAXPROCS(runtime.NumCPU())
@@ -464,7 +509,7 @@ func main() {
     viper.SetDefault("font_size", 12)
     viper.SetDefault("disable_timestamps", false)
     viper.SetDefault("timestamp_opacity", 1.0)
-    viper.SetDefault("filename", "%s.jpg")
+    viper.SetDefault("filename", "{{.Path}}{{.Name}}.jpg")
     viper.SetDefault("verbose", false)
     viper.SetDefault("bg_content", "0,0,0")
     viper.SetDefault("border", 0)
@@ -536,6 +581,9 @@ func main() {
     flag.Bool("filters", false, "list all available filters")
     viper.BindPFlag("filters", flag.Lookup("filters"))
 
+    flag.String("output", viper.GetString("filename"), "set an output filename")
+    viper.BindPFlag("filename", flag.Lookup("output"))
+
     viper.AutomaticEnv()
 
     viper.SetConfigType("json")
@@ -606,7 +654,7 @@ NOTE: fancy has best results if it is applied as last filter!
         // TODO: implement generation of image contac sheets from a folder
         thumbs = GenerateScreenshots(movie)
         if len(thumbs) > 0 {
-            makeContactSheet(thumbs, fmt.Sprintf(viper.GetString("filename"), movie))
+            makeContactSheet(thumbs, getSavePath(movie, 0))
         }
 
     }
