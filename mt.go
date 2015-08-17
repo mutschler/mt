@@ -152,22 +152,53 @@ func GenerateScreenshots(fn string) []image.Image {
     defer gen.Close()
 
     duration := gen.Duration
-    percentage := int64((float32(gen.Duration / 100)) * (5.5 * 2))
+    from := int64(0)
+    end := int64(0)
+
+    if viper.GetString("from") != "0" {
+        log.Infof("First screenshot will be at %s", viper.GetString("from"))
+        from = stringToMS(viper.GetString("from"))
+    }
+    if viper.GetString("end") != "0" {
+        log.Infof("Last screenshot will be at %s", viper.GetString("end"))
+        end = stringToMS(viper.GetString("end"))
+    }
+
+    percentage := int64((float32(duration / 100)) * (5.5 * 2))
     //cut of 2 minutes of video if video has at least 4 minutes else cut away (or at least 10.10%)
     if duration > (120000*2) && 120000 > percentage {
         duration = duration - 120000
     } else {
-        duration = gen.Duration - percentage
+        duration = duration - percentage
+    }
+
+    if (end > 0) {
+        duration = end
+    }
+
+    if (from > 0 ) {
+        duration = duration - from
     }
 
     inc := duration / (int64(viper.GetInt("numcaps")))
+
+    if (end > 0 && from > 0) {
+        inc = duration / (int64(viper.GetInt("numcaps")) -1)
+    }
+
     if inc <= 60000 {
         log.Warn("very small timestamps in use... consider decreasing numcaps")
     }
     if inc <= 9000 {
         log.Errorf("interval (%ds) is way to small (less then 9s), please decrease numcaps", inc/1000)
     }
+
+
     d := inc
+    if (from > 0) {
+        d = from
+    }
+
     for i := 0; i < viper.GetInt("numcaps"); i++ {
         stamp := d
         img, err := gen.Image(d)
@@ -494,6 +525,16 @@ func getSavePath(filename string, c int) string {
     return buf.String()
 }
 
+func stringToMS(s string) int64 {
+    x := strings.Split(s, ":")
+    hh, _ := strconv.Atoi(x[0])
+    mm, _ := strconv.Atoi(x[1])
+    ss, _ := strconv.Atoi(x[2])
+    
+    end := (ss + (mm *60) + (hh * 60 *60)) * 1000
+    return int64(end)
+}
+
 func main() {
 
     runtime.GOMAXPROCS(runtime.NumCPU())
@@ -513,6 +554,8 @@ func main() {
     viper.SetDefault("verbose", false)
     viper.SetDefault("bg_content", "0,0,0")
     viper.SetDefault("border", 0)
+    viper.SetDefault("from", "0")
+    viper.SetDefault("end", "0")
     viper.SetDefault("single_images", false)
     viper.SetDefault("header", true)
     viper.SetDefault("font_dirs", []string{})
@@ -583,6 +626,12 @@ func main() {
 
     flag.String("output", viper.GetString("filename"), "set an output filename")
     viper.BindPFlag("filename", flag.Lookup("output"))
+
+    flag.String("from", viper.GetString("from"), "set starting point in format HH:MM:SS")
+    viper.BindPFlag("from", flag.Lookup("from"))
+
+    flag.String("to", viper.GetString("end"), "set end point in format HH:MM:SS")
+    viper.BindPFlag("end", flag.Lookup("to"))
 
     viper.AutomaticEnv()
 
