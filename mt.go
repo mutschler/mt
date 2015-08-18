@@ -666,13 +666,14 @@ func main() {
     if viper.GetBool("filters") {
 allFilters := `available image filters:
 
-| NAME      | DESCRIPTION                  |
-| --------- | ---------------------------- |
-| invert    | invert colors                |
-| greyscale | convert to greyscale image   |
-| sepia     | convert to sepia image       |
-| fancy     | randomly rotates every image |
-| cross     | simulated cross processing   |
+| NAME      | DESCRIPTION                     |
+| --------- | --------------------------------|
+| invert    | invert colors                   |
+| greyscale | convert to greyscale image      |
+| sepia     | convert to sepia image          |
+| fancy     | randomly rotates every image    |
+| cross     | simulated cross processing      |
+| strip     | simulate an old 35mm Film strip |
 
 you can stack multiple filters by seperating them with a comma
 example:
