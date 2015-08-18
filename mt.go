@@ -206,7 +206,6 @@ func GenerateScreenshots(fn string) []image.Image {
             log.Fatalf("Can't generate screenshot: %v", err)
             os.Exit(1)
         }
-
         //try to detect images with a large black/white amount
         if viper.GetBool("skip_blank") {
             maxCount := 3
@@ -276,7 +275,14 @@ func GenerateScreenshots(fn string) []image.Image {
                     img = dst
                 case "cross":
                     log.Debug("cross filter applied")   
-                    img = CrossProcessing(img, 0.5, 9)
+                    img = CrossProcessingFilter(img, 0.5, 9)
+                case "strip":
+                    log.Debug("image stip filter applied")
+                    //draw timestamp!
+                    tsimage := drawTimestamp(timestamp)
+                    img = imaging.Overlay(img, tsimage, image.Pt(img.Bounds().Dx()-tsimage.Bounds().Dx()-10, img.Bounds().Dy()-tsimage.Bounds().Dy()-10), viper.GetFloat64("timestamp_opacity"))
+                    viper.Set("disable_timestamps", true )
+                    img = ImageStripFilter(img)
             }
         }
         
