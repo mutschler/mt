@@ -1,6 +1,6 @@
 {
 	"ImportPath": "bitbucket.org/raphaelmutschler/mt",
-	"GoVersion": "go1.4.1",
+	"GoVersion": "go1.4.2",
 	"Deps": [
 		{
 			"ImportPath": "code.google.com/p/jamslam-freetype-go/freetype",
@@ -37,8 +37,8 @@
 			"Rev": "4734e7aca379f0d7fcdf04fbb2101696a4b45ce8"
 		},
 		{
-			"ImportPath": "github.com/cytec/screengen",
-			"Rev": "fc401213062d81ea434bed9282678eebb67db489"
+			"ImportPath": "github.com/disintegration/gift",
+			"Rev": "5b044b74c0b1d476954f177d636e1ce20418e896"
 		},
 		{
 			"ImportPath": "github.com/disintegration/imaging",
@@ -60,6 +60,10 @@
 		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
 			"Rev": "442e588f213303bec7936deba67901f8fc8f18b1"
+		},
+		{
+			"ImportPath": "github.com/opennota/screengen",
+			"Rev": "2af0ad79a0d39866028e9bca054e1823afc05e62"
 		},
 		{
 			"ImportPath": "github.com/spf13/cast",

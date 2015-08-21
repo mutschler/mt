@@ -6,3 +6,5 @@ A library for generating screenshots from video files.
 ## Installation
 
     go get github.com/opennota/screengen
+
+Note: it doesn't link against `libav`. So far, only `ffmpeg` is supported. Pull requests are welcome.

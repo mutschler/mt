@@ -38,11 +38,11 @@ type Generator struct {
 	Height             int     // Height of the video
 	Duration           int64   // Duration of the video in milliseconds
 	VideoCodec         string  // Name of the video codec
-	VideoCodecLongName string  // Readable/long name of the video Codec
+	VideoCodecLongName string  // Readable/long name of the video codec
 	FPS                float64 // Frames Per Second
 	numberOfStreams    int
 	AudioCodec         string // Name of the audio codec
-	AudioCodecLongName string // readable/long name of the audio codec
+	AudioCodecLongName string // Readable/long name of the audio codec
 	vStreamIndex       int
 	aStreamIndex       int
 	Bitrate            int
@@ -103,16 +103,16 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 	vCodecName := strings.ToUpper(C.GoString(vCodec.name))
 	vCodecHuman := C.GoString(vCodec.long_name)
 
-	if aStreamIndex == -1 {
-		return nil, errors.New("no audio stream")
+	aCodecName := ""
+	aCodecHuman := ""
+	if aStreamIndex != -1 {
+		aacCtx := streams[aStreamIndex].codec
+		aCodec := C.avcodec_find_decoder(aacCtx.codec_id)
+		if aCodec != nil {
+			aCodecName = strings.ToUpper(C.GoString(aCodec.name))
+			aCodecHuman = C.GoString(aCodec.long_name)
+		}
 	}
-	aacCtx := streams[aStreamIndex].codec
-	aCodec := C.avcodec_find_decoder(aacCtx.codec_id)
-	if aCodec == nil {
-		return nil, errors.New("can't find decoder")
-	}
-	aCodecName := strings.ToUpper(C.GoString(aCodec.name))
-	aCodecHuman := C.GoString(aCodec.long_name)
 
 	return &Generator{
 		Width:              width,
@@ -137,6 +137,7 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 func (g *Generator) Image(ts int64) (image.Image, error) {
 	img := image.NewRGBA(image.Rect(0, 0, g.Width, g.Height))
 	frame := C.av_frame_alloc()
+	defer C.av_frame_free(&frame)
 	frameNum := C.av_rescale(
 		C.int64_t(ts),
 		C.int64_t(g.streams[g.vStreamIndex].time_base.den),
@@ -165,7 +166,7 @@ func (g *Generator) Image(ts int64) (image.Image, error) {
 			return nil, errors.New("can't decode frame")
 		}
 		C.av_free_packet(&pkt)
-		if frameFinished == 0 {
+		if frameFinished == 0 || pkt.dts < frameNum {
 			continue
 		}
 		ctx := C.sws_getContext(

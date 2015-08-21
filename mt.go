@@ -4,7 +4,7 @@ import (
     "code.google.com/p/jamslam-freetype-go/freetype"
     "fmt"
     log "github.com/Sirupsen/logrus"
-    "github.com/cytec/screengen"
+    "github.com/opennota/screengen"
     "github.com/disintegration/imaging"
     "github.com/dustin/go-humanize"
     flag "github.com/spf13/pflag"
