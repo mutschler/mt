@@ -1,11 +1,20 @@
 {
-    "numcaps": 4,
-    "font_all": "Arial",
-    "verbose": false,
-    "font_size": 12,
-    "padding": 5,
+    "bg_content": "0,0,0",
+    "bg_header": "0,0,0",
     "columns": 2,
-    "width": 500,
     "disable_timestamps": false,
-    "single_images": false
+    "fg_header": "255,255,255",
+    "filter": "none",
+    "font_all": "DroidSans.ttf",
+    "font_size": 12,
+    "header": true,
+    "header_image": "",
+    "header_meta": false,
+    "numcaps": 4,
+    "filename": "{{.Path}}{{.Name}}.jpg",
+    "padding": 10,
+    "single_images": false,
+    "skip_blank": false,
+    "verbose": false,
+    "width": 400
 }
