@@ -3,7 +3,7 @@ package main
 import (
     "code.google.com/p/jamslam-freetype-go/freetype"
     "fmt"
-    log "github.com/Sirupsen/logrus"
+    log "github.com/sirupsen/logrus"
     "github.com/opennota/screengen"
     "github.com/disintegration/imaging"
     "github.com/dustin/go-humanize"
@@ -30,12 +30,13 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.2-dev"
+var version string = "1.0.3-dev"
 
 func randomInt(min, max int) float32 {
     rand.Seed(time.Now().UTC().UnixNano())
     return float32(rand.Intn(max - min) + min)
 }
+
 
 func countBlankPixels(c color.NRGBA) color.NRGBA {
     //use 55?
@@ -547,7 +548,6 @@ func main() {
     viper.SetConfigName("mt")
     viper.SetEnvPrefix("mt")
     viper.SetDefault("numcaps", 4)
-
     viper.SetDefault("columns", 2)
     viper.SetDefault("padding", 10)
     viper.SetDefault("width", 400)
@@ -639,6 +639,12 @@ func main() {
     flag.String("to", viper.GetString("end"), "set end point in format HH:MM:SS")
     viper.BindPFlag("end", flag.Lookup("to"))
 
+    flag.String("save-config", viper.GetString("save_config"), "save config with current settings to this path")
+    viper.BindPFlag("save_config", flag.Lookup("save-config"))
+
+    flag.String("config-file", viper.GetString("config_file"), "use this configuration file")
+    viper.BindPFlag("config_file", flag.Lookup("config-file"))
+
     viper.AutomaticEnv()
 
     viper.SetConfigType("json")
@@ -661,6 +667,19 @@ func main() {
     if viper.GetBool("show_version") {
         fmt.Fprintf(os.Stderr, "mt Version %s\n", version)
         os.Exit(1)
+    }
+
+    if viper.GetString("config_file") != "" {
+        log.Debugf("Useing custom config file stored at: %s",viper.GetString("config_file"))
+        viper.SetConfigFile(viper.GetString("config_file"))
+        err := viper.ReadInConfig()
+        if err != nil {
+            fmt.Errorf("error reading config file: %s useing default values", err)
+        }
+    }
+
+    if viper.GetString("save_config") != "" {
+        saveConfig(viper.GetString("save_config"))
     }
 
     if viper.GetBool("filters") {

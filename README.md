@@ -23,6 +23,14 @@ to change settings on runtime you can either use the provided pflags (mt --help 
 
 `mt --numcaps=20 myvideo.mkg` will change the numcaps settings to 20 for this run only, so will `MT_NUMCAPS=20 mt myvideo.mkv` 
 
+since v 1.0.3-dev there is an option to save the current settings to a specified config file:
+
+`mt --save-config=/path/to/config.json` 
+
+and load a custom config on runtime:
+
+`mt --config-file=/path/to/config.json`
+
 ## Available Config Options:
 
 | name | default value | description |
