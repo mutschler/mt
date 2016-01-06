@@ -1,19 +1,17 @@
-// screengen
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
 //
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3.0 of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+// Public License for more details.
 //
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library.
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-// Screengen is a package for generating screenshots from video files.
+// Package screengen can be used for generating screenshots from video files.
 package screengen
 
 // #cgo pkg-config: libavcodec libavformat libavutil libswscale
@@ -34,6 +32,9 @@ import (
 
 // Generator is used to generate screenshots from a video file.
 type Generator struct {
+	Fast bool // Imprecise (but faster) seek; set by the user
+
+	Filename           string  // Video file name
 	Width              int     // Width of the video
 	Height             int     // Height of the video
 	Duration           int64   // Duration of the video in milliseconds
@@ -115,6 +116,7 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 	}
 
 	return &Generator{
+		Filename:           fn,
 		Width:              width,
 		Height:             height,
 		Duration:           duration,
@@ -135,9 +137,11 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 
 // Image returns a screenshot at the ts milliseconds.
 func (g *Generator) Image(ts int64) (image.Image, error) {
-	img := image.NewRGBA(image.Rect(0, 0, g.Width, g.Height))
-	frame := C.av_frame_alloc()
-	defer C.av_frame_free(&frame)
+	return g.ImageWxH(ts, g.Width, g.Height)
+}
+
+// ImageWxH returns a screenshot at the ts milliseconds, scaled to the specified width and height.
+func (g *Generator) ImageWxH(ts int64, width, height int) (image.Image, error) {
 	frameNum := C.av_rescale(
 		C.int64_t(ts),
 		C.int64_t(g.streams[g.vStreamIndex].time_base.den),
@@ -151,8 +155,20 @@ func (g *Generator) Image(ts int64) (image.Image, error) {
 		frameNum,
 		C.AVSEEK_FLAG_FRAME,
 	) < 0 {
-		return nil, errors.New("can't seek to timestamp")
+		if C.avformat_seek_file(
+			g.avfContext,
+			C.int(g.vStreamIndex),
+			0,
+			frameNum,
+			frameNum,
+			C.AVSEEK_FLAG_ANY,
+		) < 0 {
+			return nil, errors.New("can't seek to timestamp")
+		}
 	}
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	frame := C.av_frame_alloc()
+	defer C.av_frame_free(&frame)
 	C.avcodec_flush_buffers(g.avcContext)
 	var pkt C.struct_AVPacket
 	var frameFinished C.int
@@ -163,18 +179,18 @@ func (g *Generator) Image(ts int64) (image.Image, error) {
 		}
 		if C.avcodec_decode_video2(g.avcContext, frame, &frameFinished, &pkt) <= 0 {
 			C.av_free_packet(&pkt)
-			return nil, errors.New("can't decode frame")
+			continue
 		}
 		C.av_free_packet(&pkt)
-		if frameFinished == 0 || pkt.dts < frameNum {
+		if frameFinished == 0 || (!g.Fast && pkt.dts < frameNum) {
 			continue
 		}
 		ctx := C.sws_getContext(
 			C.int(g.Width),
 			C.int(g.Height),
 			g.avcContext.pix_fmt,
-			C.int(g.Width),
-			C.int(g.Height),
+			C.int(width),
+			C.int(height),
 			C.PIX_FMT_RGBA,
 			C.SWS_BICUBIC,
 			nil,
@@ -192,7 +208,7 @@ func (g *Generator) Image(ts int64) (image.Image, error) {
 			ctx,
 			srcSlice,
 			srcStride,
-			C.int(0),
+			0,
 			g.avcContext.height,
 			dst,
 			dstStride,

@@ -13,8 +13,8 @@ import (
 	"image"
 	"image/draw"
 
-	"code.google.com/p/jamslam-freetype-go/freetype/raster"
-	"code.google.com/p/jamslam-freetype-go/freetype/truetype"
+	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype/raster"
+	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype/truetype"
 )
 
 // These constants determine the size of the glyph cache. The cache is keyed
@@ -233,7 +233,7 @@ func (c *Context) MeasureString(s string) (raster.Fix32, raster.Fix32, error) {
 	}
 
 	var width, height, heightMax raster.Fix32
-	oneLine := c.PointToFix32(c.fontSize)&0xff
+	oneLine := c.PointToFix32(c.fontSize) & 0xff
 	height = c.PointToFix32(c.fontSize)
 	prev, hasPrev := truetype.Index(0), false
 	for _, rune := range s {
@@ -245,7 +245,7 @@ func (c *Context) MeasureString(s string) (raster.Fix32, raster.Fix32, error) {
 		if err := c.glyphBuf.Load(c.font, c.scale, index, nil); err != nil {
 			return 0, 0, err
 		}
-		ymax := oneLine-raster.Fix32(c.glyphBuf.B.YMin<<2)+0xff
+		ymax := oneLine - raster.Fix32(c.glyphBuf.B.YMin<<2) + 0xff
 		heightMax = max(heightMax, ymax)
 
 		width += raster.Fix32(c.font.HMetric(c.scale, index).AdvanceWidth) << 2

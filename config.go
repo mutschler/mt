@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/mitchellh/mapstructure"
+	log "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
+	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"encoding/json"
-	"github.com/mitchellh/mapstructure"
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"os"
 )
 
@@ -20,20 +20,20 @@ type config struct {
 	Single_Images      bool   `json:"single_images"`
 	Bg_Header          string `json:"bg_header"`
 	Fg_Header          string `json:"fg_header"`
-  Bg_Content         string `json:"bg_content"`
-  Header_Image       string `json:"header_image"`
-  Skip_Blank         bool   `json:"skip_blank"`
-  // Version            bool   `json:"version"`
-  Header             bool   `json:"header"`
-  Header_Meta        bool   `json:"header_meta"`
-  Filter             string `json:"filter"`
-  Filename           string `json:"filename"`
-  From							 string `json:"from"`
-  To                 string `json:"to"`
-  Skip_Existing      bool   `json:"skip_exisitng"`
-  Overwrite					 bool 	`json:"overwrite"`
-	SFW                bool   `json:"sfw"`
-	Watermark          string `json:"watermark"`
+	Bg_Content         string `json:"bg_content"`
+	Header_Image       string `json:"header_image"`
+	Skip_Blank         bool   `json:"skip_blank"`
+	// Version            bool   `json:"version"`
+	Header        bool   `json:"header"`
+	Header_Meta   bool   `json:"header_meta"`
+	Filter        string `json:"filter"`
+	Filename      string `json:"filename"`
+	From          string `json:"from"`
+	To            string `json:"to"`
+	Skip_Existing bool   `json:"skip_exisitng"`
+	Overwrite     bool   `json:"overwrite"`
+	SFW           bool   `json:"sfw"`
+	Watermark     string `json:"watermark"`
 }
 
 var C config
