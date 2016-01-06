@@ -9,25 +9,31 @@ import (
 )
 
 type config struct {
-    Bg_Content         string `json:"bg_content"`
-    Bg_Header          string `json:"bg_header"`
-    Columns            int    `json:"columns"`
-    Disable_Timestamps bool   `json:"disable_timestamps"`
-    Fg_Header          string `json:"fg_header"`
-    Filter             string `json:"filter"`
-    Font_All           string `json:"font_all"`
-    Font_Size          int    `json:"font_size"`
-    Header             bool   `json:"header"`
-    Header_Image       string `json:"header_image"`
-    Header_Meta        bool   `json:"header_meta"`
 	Numcaps            int    `json:"numcaps"`
-    Filename           string `json:"filename"`
+	Columns            int    `json:"columns"`
 	Padding            int    `json:"padding"`
-    Single_Images      bool   `json:"single_images"`
-    Skip_Blank         bool   `json:"skip_blank"`
-    Verbose            bool   `json:"verbose"`
 	Width              int    `json:"width"`
-	// Watermark          string `json:"watermark"`
+	Font_All           string `json:"font_all"`
+	Font_Size          int    `json:"font_size"`
+	Disable_Timestamps bool   `json:"disable_timestamps"`
+	Verbose            bool   `json:"verbose"`
+	Single_Images      bool   `json:"single_images"`
+	Bg_Header          string `json:"bg_header"`
+	Fg_Header          string `json:"fg_header"`
+  Bg_Content         string `json:"bg_content"`
+  Header_Image       string `json:"header_image"`
+  Skip_Blank         bool   `json:"skip_blank"`
+  // Version            bool   `json:"version"`
+  Header             bool   `json:"header"`
+  Header_Meta        bool   `json:"header_meta"`
+  Filter             string `json:"filter"`
+  Filename           string `json:"filename"`
+  From							 string `json:"from"`
+  To                 string `json:"to"`
+  Skip_Existing      bool   `json:"skip_exisitng"`
+  Overwrite					 bool 	`json:"overwrite"`
+	SFW                bool   `json:"sfw"`
+	Watermark          string `json:"watermark"`
 }
 
 var C config

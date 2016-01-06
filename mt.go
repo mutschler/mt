@@ -24,25 +24,33 @@ import (
     "strings"
     "time"
     "text/template"
+    "github.com/koyachi/go-nude"
+    "encoding/json"
 )
 
 var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.3-dev"
+var version string = "1.0.4-dev"
 
 func randomInt(min, max int) float32 {
     rand.Seed(time.Now().UTC().UnixNano())
     return float32(rand.Intn(max - min) + min)
 }
 
+func fileExists(fname string) bool {
+    if _, err := os.Stat(fname); err == nil {
+        return true
+    }
+    return false
+}
 
 func countBlankPixels(c color.NRGBA) color.NRGBA {
     //use 55?
     if int(c.R) < 50 && int(c.G) < 50 && int(c.B) < 50 {
         blankPixels = blankPixels + 1
-    } else if int(c.R) > 205 && int(c.G) > 205 && int(c.B) > 205 {
+    } else if int(c.R) > 200 && int(c.G) > 200 && int(c.B) > 200 {
         blankPixels = blankPixels + 1
     }
 
@@ -142,6 +150,23 @@ func isBlankImage(img image.Image) bool {
     return false
 }
 
+// wrapper for nudity detection
+func isNudeImage(img image.Image) bool {
+    isNude, err := nude.IsImageNude(img)
+    if err != nil {
+        log.Error(err)
+        return false
+    }
+    // d := nude.NewDetector(img)
+    // isNude, err := d.Parse()
+    // if err != nil {
+    //     log.Fatal(err)
+    // }
+    // fmt.Printf("isNude = %v\n", isNude)
+    // fmt.Printf("%s\n", d)
+    return isNude
+}
+
 // generates screenshots and returns a list of images
 func GenerateScreenshots(fn string) []image.Image {
     var thumbnails []image.Image
@@ -212,8 +237,24 @@ func GenerateScreenshots(fn string) []image.Image {
             maxCount := 3
             count := 1
             for isBlankImage(img) == true && maxCount >= count {
-                log.Warnf("[%d/%d] blank frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(d/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((d+10000)/1000, 0).UTC().Format("15:04:05")))
-                if d >= duration-inc {
+                log.Warnf("[%d/%d] blank frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((stamp+10000)/1000, 0).UTC().Format("15:04:05")))
+                if stamp >= duration - inc {
+                    log.Error("end of clip reached... no more blank frames can be skipped")
+                    i = viper.GetInt("numcaps") - 1
+                    break
+                }
+                stamp = d + (10000 * int64(count))
+                img, _ = gen.Image(stamp)
+                count = count + 1
+            }
+        }
+
+        if viper.GetBool("sfw") {
+            maxCount := 3
+            count := 1
+            for isNudeImage(img) == true && maxCount >= count {
+                log.Warnf("[%d/%d] nude image detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((stamp+10000)/1000, 0).UTC().Format("15:04:05")))
+                if stamp >= duration - inc {
                     log.Error("end of clip reached... no more blank frames can be skipped")
                     i = viper.GetInt("numcaps") - 1
                     break
@@ -502,8 +543,20 @@ type FileInfo struct {
     Count string
 }
 
-//gets a filename (string) and returns the absolute path to save the image to...
-func getSavePath(filename string, c int) string {
+// increment savePath as long as there is a file present
+func increamentSavePath(filename string, c int) string {
+    fname := filename
+    counter := c
+    for fileExists(fname) {
+        log.Debugf("image already existing at: %s")
+        fname = constructSavePath(filename, counter)
+        counter++
+    }
+    return fname
+}
+
+// constructs the save path based on filename and counter
+func constructSavePath(filename string, c int) string {
     if(viper.GetString("filename") == "%s.jpg") {
         return fmt.Sprintf(viper.GetString("filename"), filename)
     }
@@ -530,6 +583,23 @@ func getSavePath(filename string, c int) string {
         return strings.Replace(filename, fx.Ext, ".jpg", -1)
     }
     return buf.String()
+}
+
+//gets a filename (string) and returns the absolute path to save the image to...
+func getSavePath(filename string, c int) string {
+    fname := constructSavePath(filename, c)
+
+    if viper.GetBool("skip_existing") && fileExists(fname) {
+        return fname
+    }
+
+    counter := c
+    for fileExists(fname) && !viper.GetBool("overwrite") {
+        //log.Debugf("image already existing at: %s and overwrite is disabled", fname)
+        counter++
+        fname = constructSavePath(filename, counter)
+    }
+    return fname
 }
 
 func stringToMS(s string) int64 {
@@ -572,6 +642,9 @@ func main() {
     viper.SetDefault("watermark", "")
     viper.SetDefault("filter", "none")
     viper.SetDefault("skip_blank", false)
+    viper.SetDefault("skip_existing", false)
+    viper.SetDefault("overwrite", false)
+    viper.SetDefault("sfw", false)
 
     flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures")
     viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -624,7 +697,7 @@ func main() {
     flag.Bool("header-meta", viper.GetBool("header_meta"), "append codec, fps and bitrate informations to the header")
     viper.BindPFlag("header_meta", flag.Lookup("header-meta"))
 
-    flag.String("filter", viper.GetString("filter"), "apply filter to images, see --list-filters for available filters")
+    flag.String("filter", viper.GetString("filter"), "apply filter to images, see --filters for available filters")
     viper.BindPFlag("filter", flag.Lookup("filter"))
 
     flag.Bool("filters", false, "list all available filters")
@@ -644,6 +717,15 @@ func main() {
 
     flag.String("config-file", viper.GetString("config_file"), "use this configuration file")
     viper.BindPFlag("config_file", flag.Lookup("config-file"))
+
+    flag.Bool("skip-existing",  viper.GetBool("skip_existing"), "skip any item if there is already a screencap present")
+    viper.BindPFlag("skip_existing", flag.Lookup("skip-existing"))
+
+    flag.Bool("overwrite",  viper.GetBool("overwrite"), "overwrite existing screencaps")
+    viper.BindPFlag("overwrite", flag.Lookup("overwrite"))
+
+    flag.Bool("sfw", viper.GetBool("sfw"), "use nudity detection to generate sfw images (HIGHLY EXPERIMENTAL)")
+    viper.BindPFlag("sfw", flag.Lookup("sfw"))
 
     viper.AutomaticEnv()
 
@@ -677,6 +759,8 @@ func main() {
             fmt.Errorf("error reading config file: %s useing default values", err)
         }
     }
+
+
 
     if viper.GetString("save_config") != "" {
         saveConfig(viper.GetString("save_config"))
@@ -715,6 +799,11 @@ NOTE: fancy has best results if it is applied as last filter!
         log.SetLevel(log.DebugLevel)
     }
 
+    // print config file and used values!
+    log.Debugf("Config file used: %s", viper.ConfigFileUsed())
+    b, _ := json.Marshal(viper.AllSettings())
+    log.Debugf("config values: %s", b)
+
     fontBytes, err = getFont(viper.GetString("font_all"))
     if err != nil {
         log.Warn("unable to load font, disableing timestamps and header")
@@ -723,10 +812,19 @@ NOTE: fancy has best results if it is applied as last filter!
     for _, movie := range flag.Args() {
         mpath = movie
         log.Infof("generating contact sheet for %s", movie)
+        log.Debugf("image will be saved as %s", getSavePath(movie, 0))
+        
 
         var thumbs []image.Image
         // thumbs = getImages(movie)
         // TODO: implement generation of image contac sheets from a folder
+
+        //skip existing image if option is present
+        if fileExists(getSavePath(movie, 0)) && viper.GetBool("skip_existing") {
+            log.Infof("file already exists, skipping %s", getSavePath(movie, 0))
+            continue
+        }
+        
         thumbs = GenerateScreenshots(movie)
         if len(thumbs) > 0 {
             makeContactSheet(thumbs, getSavePath(movie, 0))
