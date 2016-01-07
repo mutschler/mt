@@ -175,6 +175,11 @@ func GenerateScreenshots(fn string) []image.Image {
 		log.Fatalf("Error reading video file: %v", err)
 		os.Exit(1)
 	}
+
+	if viper.GetBool("fast") {
+		gen.Fast = true
+	}
+
 	defer gen.Close()
 
 	duration := gen.Duration
@@ -640,6 +645,7 @@ func main() {
 	viper.SetDefault("skip_existing", false)
 	viper.SetDefault("overwrite", false)
 	viper.SetDefault("sfw", false)
+	viper.SetDefault("fast", false)
 
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -721,6 +727,9 @@ func main() {
 
 	flag.Bool("sfw", viper.GetBool("sfw"), "use nudity detection to generate sfw images (HIGHLY EXPERIMENTAL)")
 	viper.BindPFlag("sfw", flag.Lookup("sfw"))
+
+	flag.Bool("fast", viper.GetBool("fast"), "inacurate but faster seeking")
+	viper.BindPFlag("fast", flag.Lookup("fast"))
 
 	viper.AutomaticEnv()
 
