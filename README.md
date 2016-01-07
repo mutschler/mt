@@ -58,6 +58,10 @@ and load a custom config on runtime:
 | watermark | "" | absolute path to an watermark image that will be added to the middle image of the contact sheet |
 | filter | "none" | choose a filter to add to the thumbnails: "greyscale", "invert", "fancy", "cross" |
 | skip_blank | false | try up to 3 times to skip a blank image (can slow down mt) |
+| sfw | false | EXPERIMENTAL nude detection |
+| skip_existing | false | skip movie if there is already a jpg with the same name |
+| overwrite | false | by default mt will increment the filename by adding -01 if there is already a jpg use --overwrite to overwrite the image instead |
+| fast | false | makes mt faster a lot, but seeking will be more inacurate and may produce duplicate screens |
 
 ## Usage
 
