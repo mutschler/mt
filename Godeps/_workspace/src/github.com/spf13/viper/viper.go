@@ -31,12 +31,12 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/kr/pretty"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/mitchellh/mapstructure"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/cast"
-	jww "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/jwalterweatherman"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/pflag"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/gopkg.in/fsnotify.v1"
+	"github.com/kr/pretty"
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cast"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/pflag"
+	"gopkg.in/fsnotify.v1"
 )
 
 var v *Viper

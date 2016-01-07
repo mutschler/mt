@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
 	"bytes"
+	"github.com/disintegration/imaging"
 	"image"
 	"image/color"
 	"math"

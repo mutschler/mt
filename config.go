@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/mitchellh/mapstructure"
-	log "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"encoding/json"
+	"github.com/mitchellh/mapstructure"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"os"
 )
 
