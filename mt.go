@@ -32,7 +32,7 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.4-dev"
+var version string = "1.0.4"
 
 func randomInt(min, max int) float32 {
 	rand.Seed(time.Now().UTC().UnixNano())
