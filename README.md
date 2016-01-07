@@ -11,6 +11,12 @@ go get bitbucket.org/raphaelmutschler/mt
 go install bitbucket.org/raphaelmutschler/mt
 ```
 
+if you'll have ffmpeg installed in a non standart directory you'll may have to use PKG_CONFIG_PATH variable like this:
+
+```
+LD_LIBRARY_PATH=/path/to/ffmpeg/lib/ PKG_CONFIG_PATH=/path/to//ffmpeg/lib/pkgconfig/ godep go build -x
+```
+
 ## Settings
 
 Default Settings can be alternated via config files in JSON format, there are 3 directories in which the config can be saved:
