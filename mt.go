@@ -32,7 +32,7 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.4"
+var version string = "1.0.5-dev"
 
 func randomInt(min, max int) float32 {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -337,7 +337,20 @@ func GenerateScreenshots(fn string) []image.Image {
 		}
 
 		//watermark middle image
-		if i == (viper.GetInt("numcaps")-1)/2 && viper.GetString("watermark") != "" {
+		if i == (viper.GetInt("numcaps")-1)/2 && viper.GetString("watermark") != "" && !viper.GetBool("single_images") {
+			ov, err := imaging.Open(viper.GetString("watermark"))
+			if err == nil {
+				if ov.Bounds().Dx() > img.Bounds().Dx() {
+					ov = imaging.Resize(ov, img.Bounds().Dx(), 0, imaging.Lanczos)
+				}
+				if ov.Bounds().Dy() > img.Bounds().Dy() {
+					ov = imaging.Resize(ov, 0, img.Bounds().Dy(), imaging.Lanczos)
+				}
+				posX := (img.Bounds().Dx() - ov.Bounds().Dx()) / 2
+				posY := (img.Bounds().Dy() - ov.Bounds().Dy()) / 2
+				img = imaging.Overlay(img, ov, image.Pt(posX, posY), 0.6)
+			}
+		} else if viper.GetString("watermark") != "" && viper.GetBool("single_images") {
 			ov, err := imaging.Open(viper.GetString("watermark"))
 			if err == nil {
 				if ov.Bounds().Dx() > img.Bounds().Dx() {
@@ -351,6 +364,24 @@ func GenerateScreenshots(fn string) []image.Image {
 				img = imaging.Overlay(img, ov, image.Pt(posX, posY), 0.6)
 			}
 		}
+
+		if viper.GetString("watermark_all") != "" {
+			ov, err := imaging.Open(viper.GetString("watermark_all"))
+			if err == nil {
+				if ov.Bounds().Dx() > (img.Bounds().Dx() / 4) {
+					ov = imaging.Resize(ov, (img.Bounds().Dx()/4), 0, imaging.Lanczos)
+				}
+				if ov.Bounds().Dy() > (img.Bounds().Dy()/4) {
+					ov = imaging.Resize(ov, 0, (img.Bounds().Dy()/4), imaging.Lanczos)
+				}
+				//default position for watermarking is bottom-left
+				posX := 10
+				posY := img.Bounds().Dy() - ov.Bounds().Dy() - 10
+				img = imaging.Overlay(img, ov, image.Pt(posX, posY), 0.6)
+			}
+		}
+
+
 		if viper.GetBool("single_images") {
 			fname := getSavePath(mpath, i+1)
 			createTargetDirs(fname)
@@ -640,6 +671,7 @@ func main() {
 	viper.SetDefault("header_image", "")
 	viper.SetDefault("header_meta", false)
 	viper.SetDefault("watermark", "")
+	viper.SetDefault("watermark-all", "")
 	viper.SetDefault("filter", "none")
 	viper.SetDefault("skip_blank", false)
 	viper.SetDefault("skip_existing", false)
@@ -685,6 +717,12 @@ func main() {
 
 	flag.String("header-image", viper.GetString("header_image"), "image to put in the header")
 	viper.BindPFlag("header_image", flag.Lookup("header-image"))
+
+	flag.String("watermark", viper.GetString("watermark"), "watermark the final image")
+	viper.BindPFlag("watermark", flag.Lookup("watermark"))
+
+	flag.String("watermark-all", viper.GetString("watermark_all"), "watermark every single image")
+	viper.BindPFlag("watermark_all", flag.Lookup("watermark-all"))
 
 	flag.BoolP("skip-blank", "b", viper.GetBool("skip_blank"), "skip up to 3 images in a row which seem to be blank (can slow mt down)")
 	viper.BindPFlag("skip_blank", flag.Lookup("skip-blank"))

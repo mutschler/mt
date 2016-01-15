@@ -22,5 +22,7 @@
     "skip_exisitng": false,
     "overwrite": false,
     "sfw": false,
-    "watermark": ""
+    "watermark": "",
+    "fast": false,
+    "watermark_all": ""
 }

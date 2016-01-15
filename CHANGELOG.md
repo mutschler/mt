@@ -1,7 +1,10 @@
 # Changelog
 
 
+## 1.0.5 (dev)
 
+### New
+- option to put a watermark on the bottom-left corner of each image (--watermark-all)
 
 ## 1.0.4 (07 Jan 2016)
 
