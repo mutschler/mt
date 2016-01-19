@@ -30,7 +30,7 @@ type config struct {
 	Filename      string `json:"filename"`
 	From          string `json:"from"`
 	To            string `json:"to"`
-	Skip_Existing bool   `json:"skip_exisitng"`
+	Skip_Existing bool   `json:"skip_existing"`
 	Overwrite     bool   `json:"overwrite"`
 	SFW           bool   `json:"sfw"`
 	Watermark     string `json:"watermark"`

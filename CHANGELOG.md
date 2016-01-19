@@ -6,6 +6,9 @@
 ### New
 - option to put a watermark on the bottom-left corner of each image (--watermark-all)
 
+### Changes
+- fixed a typo in config for skip_existing option
+
 ## 1.0.4 (07 Jan 2016)
 
 ### New
