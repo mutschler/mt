@@ -36,6 +36,7 @@ type config struct {
 	Watermark     string `json:"watermark"`
 	Fast					bool   `json:"fast"`
 	Watermark_All string `json:"watermark_all"`
+	Comment				string `json:"comment"`
 }
 
 var C config

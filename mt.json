@@ -6,7 +6,7 @@
     "font_all": "DroidSans.ttf",
     "font_size": 12,
     "disable_timestamps": false,
-    "verbose": true,
+    "verbose": false,
     "single_images": false,
     "bg_header": "0,0,0",
     "fg_header": "255,255,255",
@@ -19,10 +19,11 @@
     "filename": "{{.Path}}{{.Name}}.jpg",
     "from": "0",
     "to": "",
-    "skip_exisitng": false,
+    "skip_existing": false,
     "overwrite": false,
     "sfw": false,
     "watermark": "",
     "fast": false,
-    "watermark_all": ""
+    "watermark_all": "",
+    "comment": "dadadada"
 }

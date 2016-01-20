@@ -683,6 +683,7 @@ func main() {
 	viper.SetDefault("overwrite", false)
 	viper.SetDefault("sfw", false)
 	viper.SetDefault("fast", false)
+	viper.SetDefault("show_config", false)
 
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -774,6 +775,9 @@ func main() {
 	flag.Bool("sfw", viper.GetBool("sfw"), "use nudity detection to generate sfw images (HIGHLY EXPERIMENTAL)")
 	viper.BindPFlag("sfw", flag.Lookup("sfw"))
 
+	flag.Bool("show-config", viper.GetBool("show_config"), "use nudity detection to generate sfw images (HIGHLY EXPERIMENTAL)")
+	viper.BindPFlag("show_config", flag.Lookup("show-config"))
+
 	flag.Bool("fast", viper.GetBool("fast"), "inacurate but faster seeking")
 	viper.BindPFlag("fast", flag.Lookup("fast"))
 
@@ -838,7 +842,7 @@ NOTE: fancy has best results if it is applied as last filter!
 		os.Exit(1)
 	}
 
-	if len(flag.Args()) == 0 {
+	if len(flag.Args()) == 0 && !viper.GetBool("show_config") {
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -848,13 +852,28 @@ NOTE: fancy has best results if it is applied as last filter!
 	}
 
 	// print config file and used values!
-	log.Debugf("Config file used: %s", viper.ConfigFileUsed())
+	if viper.ConfigFileUsed() != "" {
+		log.Debugf("Config file used: %s", viper.ConfigFileUsed())
+	} else {
+		log.Debugf("Useing default and runtime config")
+	}
+
 	b, _ := json.Marshal(viper.AllSettings())
 	log.Debugf("config values: %s", b)
 
 	fontBytes, err = getFont(viper.GetString("font_all"))
 	if err != nil {
 		log.Warn("unable to load font, disableing timestamps and header")
+	}
+
+	if viper.GetBool("show_config") {
+		if viper.ConfigFileUsed() != "" {
+			log.Infof("Config file used: %s", viper.ConfigFileUsed())
+		} else {
+			log.Infof("Useing default and runtime config")
+		}
+		log.Infof("config values: %s", b)
+		os.Exit(1)
 	}
 
 	for _, movie := range flag.Args() {
