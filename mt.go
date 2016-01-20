@@ -565,6 +565,10 @@ func createHeader(fn string) []string {
 		header = append(header, fmt.Sprintf("Codec: %s / %s", gen.VideoCodecLongName, gen.AudioCodecLongName))
 	}
 
+	if viper.GetString("comment") != "" {
+		header = append(header, fmt.Sprintf("%s", viper.GetString("comment")))
+	}
+
 	return header
 }
 
@@ -671,6 +675,7 @@ func main() {
 	viper.SetDefault("header_image", "")
 	viper.SetDefault("header_meta", false)
 	viper.SetDefault("watermark", "")
+	viper.SetDefault("comment", "")
 	viper.SetDefault("watermark-all", "")
 	viper.SetDefault("filter", "none")
 	viper.SetDefault("skip_blank", false)
@@ -717,6 +722,9 @@ func main() {
 
 	flag.String("header-image", viper.GetString("header_image"), "image to put in the header")
 	viper.BindPFlag("header_image", flag.Lookup("header-image"))
+
+	flag.String("comment", viper.GetString("comment"), "Add a text comment to the header")
+	viper.BindPFlag("comment", flag.Lookup("comment"))
 
 	flag.String("watermark", viper.GetString("watermark"), "watermark the final image")
 	viper.BindPFlag("watermark", flag.Lookup("watermark"))

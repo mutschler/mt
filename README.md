@@ -56,6 +56,7 @@ and load a custom config on runtime:
 | fg_header | "255,255,255" | header font color |
 | header_image | "" | absolute path to an image that should be added to the header |
 | watermark | "" | absolute path to an watermark image that will be added to the middle image of the contact sheet |
+| comment | "" | comment that will be added to the bottom-left of the header |
 | watermark_all | "" | absolute path to an image that will be added to the bottom left corner of each image |
 | filter | "none" | choose a filter to add to the thumbnails: "greyscale", "invert", "fancy", "cross" |
 | skip_blank | false | try up to 3 times to skip a blank image (can slow down mt) |

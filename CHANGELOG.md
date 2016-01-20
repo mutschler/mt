@@ -5,6 +5,7 @@
 
 ### New
 - option to put a watermark on the bottom-left corner of each image (--watermark-all)
+- option to append a comment to the header area (--comment)
 
 ### Changes
 - fixed a typo in config for skip_existing option
