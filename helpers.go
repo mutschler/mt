@@ -5,6 +5,8 @@ import (
 	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/koyachi/go-nude"
 	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
+	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/disintegration/gift"
+
 	"image"
 	"bytes"
 	"text/template"
@@ -39,17 +41,50 @@ func fileExists(fname string) bool {
 	return false
 }
 
+// decides if an image is to blury
+func isBluryImage(img image.Image) bool {
+	blur := 0
+	g := gift.New(
+		gift.Sobel(),
+	)
+	dst := image.NewRGBA(g.Bounds(img.Bounds()))
+	g.Draw(dst, img)
+	pixels := 0
+	for x := 0; x < dst.Bounds().Dx(); x++ {
+        for y := 0; y < dst.Bounds().Dy(); y++ {
+					_,_,b,_ := dst.At(x, y).RGBA()
+
+					pixels = pixels + 1
+					// only count blue channel < 4
+					if int(b) < 2056 {
+						blur = blur + 1
+					}
+        }
+    }
+
+	blurPercent := int((float32(blur) / float32(pixels)) * 100)
+	if blurPercent >= 62 {
+		log.Debugf("image is considered blurry, dropping frame", blurPercent)
+		return true
+	}
+	return false
+}
+
 // decides if an image should be considered blank (dark/white)
 func isBlankImage(img image.Image) bool {
 	blankPixels = 0
 	allPixels = 0
 	img = imaging.AdjustFunc(img, countBlankPixels)
 	blankPercent := blankPixels / (allPixels / 100)
-	// log.Debugf("image is %d percent black", blackPercent)
 	if blankPercent >= 85 {
-		log.Warnf("image is %d percent black, dropping frame", blankPercent)
+		log.Debugf("image is %d percent black, dropping frame", blankPercent)
 		return true
 	}
+
+	if viper.GetBool("skip_blurry") {
+		return isBluryImage(img)
+	}
+
 	return false
 }
 

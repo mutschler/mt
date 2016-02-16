@@ -37,6 +37,7 @@ type config struct {
 	Fast					bool   `json:"fast"`
 	Watermark_All string `json:"watermark_all"`
 	Comment				string `json:"comment"`
+	Skip_Blurry		bool `json:"skip_blurry"`
 }
 
 var C config

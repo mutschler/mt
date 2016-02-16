@@ -140,7 +140,7 @@ func GenerateScreenshots(fn string) []image.Image {
 			maxCount := 3
 			count := 1
 			for isBlankImage(img) == true && maxCount >= count {
-				log.Warnf("[%d/%d] blank frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((stamp+10000)/1000, 0).UTC().Format("15:04:05")))
+				log.Warnf("[%d/%d] blank/blurry frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((stamp+10000)/1000, 0).UTC().Format("15:04:05")))
 				if stamp >= duration-inc {
 					log.Error("end of clip reached... no more blank frames can be skipped")
 					i = viper.GetInt("numcaps") - 1
@@ -498,6 +498,7 @@ func main() {
 	viper.SetDefault("watermark-all", "")
 	viper.SetDefault("filter", "none")
 	viper.SetDefault("skip_blank", false)
+	viper.SetDefault("skip_blurry", false)
 	viper.SetDefault("skip_existing", false)
 	viper.SetDefault("overwrite", false)
 	viper.SetDefault("sfw", false)
@@ -554,6 +555,9 @@ func main() {
 
 	flag.BoolP("skip-blank", "b", viper.GetBool("skip_blank"), "skip up to 3 images in a row which seem to be blank (can slow mt down)")
 	viper.BindPFlag("skip_blank", flag.Lookup("skip-blank"))
+
+	flag.Bool("skip-blurry", viper.GetBool("skip_blurry"), "needs --skip-blank and also trys to skip blurry images")
+	viper.BindPFlag("skip_blurry", flag.Lookup("skip-blurry"))
 
 	flag.Bool("version", false, "show version number and exit")
 	viper.BindPFlag("show_version", flag.Lookup("version"))
