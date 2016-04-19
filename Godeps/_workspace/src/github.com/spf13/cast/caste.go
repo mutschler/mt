@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	jww "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/jwalterweatherman"
+	jww "github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/jwalterweatherman"
 )
 
 // ToTimeE casts an empty interface to time.Time.

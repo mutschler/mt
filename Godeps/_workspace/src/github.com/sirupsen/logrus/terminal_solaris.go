@@ -5,7 +5,7 @@ package logrus
 import (
 	"os"
 
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/golang.org/x/sys/unix"
+	"github.com/mutschler/mt/Godeps/_workspace/src/golang.org/x/sys/unix"
 )
 
 // IsTerminal returns true if the given file descriptor is a terminal.

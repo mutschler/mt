@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/golang.org/x/image/bmp"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/golang.org/x/image/tiff"
+	"github.com/mutschler/mt/Godeps/_workspace/src/golang.org/x/image/bmp"
+	"github.com/mutschler/mt/Godeps/_workspace/src/golang.org/x/image/tiff"
 )
 
 type Format int

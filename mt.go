@@ -1,16 +1,16 @@
 package main
 
 import (
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/disintegration/gift"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/dustin/go-humanize"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/opennota/screengen"
-	log "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
-	flag "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/pflag"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"encoding/json"
 	"fmt"
+	"github.com/mutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/gift"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/dustin/go-humanize"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/opennota/screengen"
+	log "github.com/mutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
+	flag "github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/pflag"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"image"
 	"image/draw"
 	"math"
@@ -268,10 +268,10 @@ func GenerateScreenshots(fn string) []image.Image {
 			ov, err := imaging.Open(viper.GetString("watermark_all"))
 			if err == nil {
 				if ov.Bounds().Dx() > (img.Bounds().Dx() / 4) {
-					ov = imaging.Resize(ov, (img.Bounds().Dx()/4), 0, imaging.Lanczos)
+					ov = imaging.Resize(ov, (img.Bounds().Dx() / 4), 0, imaging.Lanczos)
 				}
-				if ov.Bounds().Dy() > (img.Bounds().Dy()/4) {
-					ov = imaging.Resize(ov, 0, (img.Bounds().Dy()/4), imaging.Lanczos)
+				if ov.Bounds().Dy() > (img.Bounds().Dy() / 4) {
+					ov = imaging.Resize(ov, 0, (img.Bounds().Dy() / 4), imaging.Lanczos)
 				}
 				//default position for watermarking is bottom-left
 				posX := 10
@@ -279,7 +279,6 @@ func GenerateScreenshots(fn string) []image.Image {
 				img = imaging.Overlay(img, ov, image.Pt(posX, posY), 0.6)
 			}
 		}
-
 
 		if viper.GetBool("single_images") {
 			fname := getSavePath(mpath, i+1)

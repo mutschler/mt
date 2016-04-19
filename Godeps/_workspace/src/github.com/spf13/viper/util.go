@@ -21,11 +21,11 @@ import (
 	"strings"
 	"unicode"
 
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/BurntSushi/toml"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/magiconair/properties"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/cast"
-	jww "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/jwalterweatherman"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/gopkg.in/yaml.v2"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/BurntSushi/toml"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/magiconair/properties"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/cast"
+	jww "github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/jwalterweatherman"
+	"github.com/mutschler/mt/Godeps/_workspace/src/gopkg.in/yaml.v2"
 )
 
 // Denotes failing to parse configuration file.

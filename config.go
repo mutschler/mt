@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/mitchellh/mapstructure"
-	log "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"encoding/json"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/mitchellh/mapstructure"
+	log "github.com/mutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"os"
 )
 
@@ -34,13 +34,14 @@ type config struct {
 	Overwrite     bool   `json:"overwrite"`
 	SFW           bool   `json:"sfw"`
 	Watermark     string `json:"watermark"`
-	Fast					bool   `json:"fast"`
+	Fast          bool   `json:"fast"`
 	Watermark_All string `json:"watermark_all"`
-	Comment				string `json:"comment"`
-	Skip_Blurry		bool `json:"skip_blurry"`
+	Comment       string `json:"comment"`
+	Skip_Blurry   bool   `json:"skip_blurry"`
 }
 
 var C config
+var tmpDir = ""
 
 func saveConfig(cfgpath string) error {
 	err := mapstructure.WeakDecode(viper.AllSettings(), &C)

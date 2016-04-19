@@ -13,8 +13,8 @@ import (
 	"image"
 	"image/draw"
 
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype/raster"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype/truetype"
+	"github.com/mutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype/raster"
+	"github.com/mutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype/truetype"
 )
 
 // These constants determine the size of the glyph cache. The cache is keyed

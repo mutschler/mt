@@ -28,7 +28,7 @@ import (
 	"strconv"
 	"strings"
 
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/opennota/screengen"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/opennota/screengen"
 )
 
 const (

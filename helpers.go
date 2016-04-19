@@ -1,24 +1,24 @@
 package main
 
 import (
-	log "bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/koyachi/go-nude"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/disintegration/gift"
-
-	"image"
 	"bytes"
-	"text/template"
-	"os"
-	"math/rand"
-	"image/color"
-	"io/ioutil"
-	"time"
-	"strings"
 	"fmt"
-	"strconv"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/gift"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/koyachi/go-nude"
+	log "github.com/mutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
+	"image"
+	"image/color"
+	"image/jpeg"
+	"io/ioutil"
+	"math/rand"
+	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
+	"text/template"
+	"time"
 )
 
 // recursively creates all dirs for fn
@@ -51,16 +51,16 @@ func isBluryImage(img image.Image) bool {
 	g.Draw(dst, img)
 	pixels := 0
 	for x := 0; x < dst.Bounds().Dx(); x++ {
-        for y := 0; y < dst.Bounds().Dy(); y++ {
-					_,_,b,_ := dst.At(x, y).RGBA()
+		for y := 0; y < dst.Bounds().Dy(); y++ {
+			_, _, b, _ := dst.At(x, y).RGBA()
 
-					pixels = pixels + 1
-					// only count blue channel < 4
-					if int(b) < 2056 {
-						blur = blur + 1
-					}
-        }
-    }
+			pixels = pixels + 1
+			// only count blue channel < 4
+			if int(b) < 2056 {
+				blur = blur + 1
+			}
+		}
+	}
 
 	blurPercent := int((float32(blur) / float32(pixels)) * 100)
 	if blurPercent >= 62 {
@@ -137,7 +137,6 @@ func stringToMS(s string) int64 {
 	end := (ss + (mm * 60) + (hh * 60 * 60)) * 1000
 	return int64(end)
 }
-
 
 // wrapper for nudity detection
 func isNudeImage(img image.Image) bool {
@@ -236,4 +235,26 @@ func getSavePath(filename string, c int) string {
 		fname = constructSavePath(filename, counter)
 	}
 	return fname
+}
+
+// saves the image to a temporary location and returns the path
+func saveTempFile(img image.Image) string {
+	if tmpDir == "" {
+		tmpDir, _ = ioutil.TempDir("", "mt")
+	}
+
+	tmpFile, err := ioutil.TempFile(tmpDir, "mt")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	buf := new(bytes.Buffer)
+	_ = jpeg.Encode(buf, img, nil)
+	send_s3 := buf.Bytes()
+
+	tmpFile.Write(send_s3)
+
+	defer tmpFile.Close()
+
+	return tmpFile.Name()
 }

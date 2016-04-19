@@ -7,8 +7,8 @@ mt is a lightweight media thumbnailer. it aims to be a simple and fast alternati
 `mt` uses depends on ffmpeg's libraries, so you'll need those installed and then run:
 
 ```
-go get bitbucket.org/raphaelmutschler/mt
-go install bitbucket.org/raphaelmutschler/mt
+go get github.com/mutschler/mt
+go install github.com/mutschler/mt
 ```
 
 if you'll have ffmpeg installed in a non standart directory you'll may have to use PKG_CONFIG_PATH variable like this:
@@ -27,11 +27,11 @@ just create a file called `md.json` in any of this locations to change the setti
 
 to change settings on runtime you can either use the provided pflags (mt --help for more info) or set environment Variables with the `MT_` prefix:
 
-`mt --numcaps=20 myvideo.mkg` will change the numcaps settings to 20 for this run only, so will `MT_NUMCAPS=20 mt myvideo.mkv` 
+`mt --numcaps=20 myvideo.mkg` will change the numcaps settings to 20 for this run only, so will `MT_NUMCAPS=20 mt myvideo.mkv`
 
 since v 1.0.3-dev there is an option to save the current settings to a specified config file:
 
-`mt --save-config=/path/to/config.json` 
+`mt --save-config=/path/to/config.json`
 
 and load a custom config on runtime:
 

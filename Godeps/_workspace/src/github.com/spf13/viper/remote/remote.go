@@ -7,8 +7,8 @@
 package remote
 
 import (
-	"bitbucket.org/raphaelmutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"bytes"
+	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	crypt "github.com/xordataexchange/crypt/config"
 	"io"
 	"os"

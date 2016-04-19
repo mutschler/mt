@@ -1,5 +1,5 @@
 {
-	"ImportPath": "bitbucket.org/raphaelmutschler/mt",
+	"ImportPath": "github.com/mutschler/mt",
 	"GoVersion": "go1.5",
 	"Deps": [
 		{
