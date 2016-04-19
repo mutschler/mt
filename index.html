@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>mt by mutschler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">mt</h1>
+      <h2 class="project-tagline">yet another media thumber</h2>
+      <a href="https://github.com/mutschler/mt" class="btn">View on GitHub</a>
+      <a href="https://github.com/mutschler/mt/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/mutschler/mt/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="mt" class="anchor" href="#mt" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>mt</h1>
+
+<p>mt is a lightweight media thumbnailer. it aims to be a simple and fast alternative to outlayers awesome <a href="http://p.outlyer.net/vcs/">Video Contact Sheet</a></p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<p><code>mt</code> uses depends on ffmpeg's libraries, so you'll need those installed and then run:</p>
+
+<pre><code>go get github.com/mutschler/mt
+go install github.com/mutschler/mt
+</code></pre>
+
+<p>if you'll have ffmpeg installed in a non standart directory you'll may have to use PKG_CONFIG_PATH variable like this:</p>
+
+<pre><code>LD_LIBRARY_PATH=/path/to/ffmpeg/lib/ PKG_CONFIG_PATH=/path/to//ffmpeg/lib/pkgconfig/ godep go build -x
+</code></pre>
+
+<h2>
+<a id="settings" class="anchor" href="#settings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Settings</h2>
+
+<p>Default Settings can be alternated via config files in JSON format, there are 3 directories in which the config can be saved:</p>
+
+<p><code>/etc/mt/</code>, <code>$HOME/.mt/</code> and the current directory</p>
+
+<p>just create a file called <code>md.json</code> in any of this locations to change the settings...</p>
+
+<p>to change settings on runtime you can either use the provided pflags (mt --help for more info) or set environment Variables with the <code>MT_</code> prefix:</p>
+
+<p><code>mt --numcaps=20 myvideo.mkg</code> will change the numcaps settings to 20 for this run only, so will <code>MT_NUMCAPS=20 mt myvideo.mkv</code></p>
+
+<p>since v 1.0.3-dev there is an option to save the current settings to a specified config file:</p>
+
+<p><code>mt --save-config=/path/to/config.json</code></p>
+
+<p>and load a custom config on runtime:</p>
+
+<p><code>mt --config-file=/path/to/config.json</code></p>
+
+<h2>
+<a id="available-config-options" class="anchor" href="#available-config-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Available Config Options:</h2>
+
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>default value</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>numcaps</td>
+<td>4</td>
+<td>number of screenshots to take</td>
+</tr>
+<tr>
+<td>columns</td>
+<td>2</td>
+<td>how many columns should be used</td>
+</tr>
+<tr>
+<td>padding</td>
+<td>5</td>
+<td>add a padding around the images</td>
+</tr>
+<tr>
+<td>width</td>
+<td>400</td>
+<td>width of a single screenshot</td>
+</tr>
+<tr>
+<td>font_all</td>
+<td>"Ubuntu.ttf"</td>
+<td>Font to use for timestamps and header</td>
+</tr>
+<tr>
+<td>font_size</td>
+<td>12</td>
+<td>font size</td>
+</tr>
+<tr>
+<td>disable_timestamps</td>
+<td>false</td>
+<td>option to disable timestamp generation</td>
+</tr>
+<tr>
+<td>timestamp_opacity</td>
+<td>1.0</td>
+<td>opacity of the timestamps must be from 0.0 to 1.0</td>
+</tr>
+<tr>
+<td>bg_content</td>
+<td>"0,0,0"</td>
+<td>RGB values for background color</td>
+</tr>
+<tr>
+<td>single_images</td>
+<td>false</td>
+<td>will create a single image for each screenshot</td>
+</tr>
+<tr>
+<td>header</td>
+<td>true</td>
+<td>append a header with file informations</td>
+</tr>
+<tr>
+<td>bg_header</td>
+<td>"0,0,0"</td>
+<td>header background color</td>
+</tr>
+<tr>
+<td>fg_header</td>
+<td>"255,255,255"</td>
+<td>header font color</td>
+</tr>
+<tr>
+<td>header_image</td>
+<td>""</td>
+<td>absolute path to an image that should be added to the header</td>
+</tr>
+<tr>
+<td>watermark</td>
+<td>""</td>
+<td>absolute path to an watermark image that will be added to the middle image of the contact sheet</td>
+</tr>
+<tr>
+<td>comment</td>
+<td>""</td>
+<td>comment that will be added to the bottom-left of the header</td>
+</tr>
+<tr>
+<td>watermark_all</td>
+<td>""</td>
+<td>absolute path to an image that will be added to the bottom left corner of each image</td>
+</tr>
+<tr>
+<td>filter</td>
+<td>"none"</td>
+<td>choose a filter to add to the thumbnails: "greyscale", "invert", "fancy", "cross"</td>
+</tr>
+<tr>
+<td>skip_blank</td>
+<td>false</td>
+<td>try up to 3 times to skip a blank image (can slow down mt)</td>
+</tr>
+<tr>
+<td>sfw</td>
+<td>false</td>
+<td>EXPERIMENTAL nude detection</td>
+</tr>
+<tr>
+<td>skip_existing</td>
+<td>false</td>
+<td>skip movie if there is already a jpg with the same name</td>
+</tr>
+<tr>
+<td>overwrite</td>
+<td>false</td>
+<td>by default mt will increment the filename by adding -01 if there is already a jpg use --overwrite to overwrite the image instead</td>
+</tr>
+<tr>
+<td>fast</td>
+<td>false</td>
+<td>makes mt faster a lot, but seeking will be more inacurate and may produce duplicate screens</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>just run <code>mt</code> and provide any video file as args:
+<code>mt video.avi</code></p>
+
+<p>Some of the settings can be changed through runtime flags provided directly to <code>mt</code> for more information just run <code>mt --help</code></p>
+
+<h3>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>example:</h3>
+
+<p>more examples can be found in the example older</p>
+
+<p><img src="./example/mt_2x2.jpg" alt="alt text"></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/mutschler/mt">mt</a> is maintained by <a href="https://github.com/mutschler">mutschler</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
