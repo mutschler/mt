@@ -1,14 +1,17 @@
 # Changelog
 
 
-## 1.0.5 (dev)
+## 1.0.5 (07 Jun 2016)
 
 ### New
 - option to put a watermark on the bottom-left corner of each image (--watermark-all)
 - option to append a comment to the header area (--comment)
+- option to list used config values (--show-config)
+- experimental function for blur detection (--skip-blurry)
 
 ### Changes
 - fixed a typo in config for skip_existing option
+- compatible with go 1.6 and ffmpeg 3.0
 
 ## 1.0.4 (07 Jan 2016)
 
@@ -19,7 +22,7 @@
 - switch for overwriting and skipping existing images
 
 ### Changes
-- log used config file and values in debug mode 
+- log used config file and values in debug mode
 - update some of the dependencies
 - use recent version of godeps to link to the saved deps
 
@@ -40,7 +43,7 @@
 
 ### Change
 - use all available cores to improve speed
- 
+
 ## 1.0.1 (22 Jul 2015)
 
 ### Change
@@ -49,8 +52,3 @@
 ## 1.0.0 (22 Jul 2015)
 
 Inital release
-
-
-
-
-
