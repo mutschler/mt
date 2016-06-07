@@ -11,4 +11,3 @@ A library for generating screenshots from video files, and a command-line tool f
 
     go get github.com/opennota/screengen/cmd/screengen
 
-Note: the package doesn't link against `libav`. So far, only `ffmpeg` is supported. Pull requests are welcome.

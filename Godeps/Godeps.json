@@ -49,7 +49,7 @@
 		},
 		{
 			"ImportPath": "github.com/opennota/screengen",
-			"Rev": "b7d8787d63bd03d0ec98b891c8a8f90ea68554ba"
+			"Rev": "0c90a2b53d5d0f4a9b76841f046c85cbb84fff8b"
 		},
 		{
 			"ImportPath": "github.com/sirupsen/logrus",

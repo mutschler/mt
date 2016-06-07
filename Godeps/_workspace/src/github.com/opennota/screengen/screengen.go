@@ -20,6 +20,29 @@ package screengen
 // #include <libavformat/avformat.h>
 // #include <libswscale/swscale.h>
 // #include <libavutil/log.h>
+// #include <libavutil/mathematics.h>
+//
+// // Work around the Cgo pointer passing rules introduced in Go 1.6.
+// int sws_scale_wrapper(
+// 			struct SwsContext *c,
+// 			const uint8_t *const srcSlice[],
+// 			const int srcStride[],
+// 			int srcSliceY,
+// 			int srcSliceH,
+// 			uint8_t dst[],
+// 			const int dstStride[]
+// 			) {
+// 	return sws_scale(c, srcSlice, srcStride, srcSliceY, srcSliceH, &dst, dstStride);
+// }
+//
+// // ffmpeg < 3.x compatibility.
+// int av_read_frame_wrapper(AVFormatContext *avfCtx, AVPacket *pkt) {
+// 	int ret = av_read_frame(avfCtx, pkt);
+// #if LIBAVCODEC_VERSION_MAJOR < 57
+// 	pkt->priv = NULL; // zero uninitialized memory (see https://github.com/golang/go/issues/14426)
+// #endif
+// 	return ret;
+// }
 import "C"
 
 import (
@@ -35,8 +58,8 @@ type Generator struct {
 	Fast bool // Imprecise (but faster) seek; set by the user
 
 	Filename           string  // Video file name
-	Width              int     // Width of the video
-	Height             int     // Height of the video
+	width              int     // Width of the video
+	height             int     // Height of the video
 	Duration           int64   // Duration of the video in milliseconds
 	VideoCodec         string  // Name of the video codec
 	VideoCodecLongName string  // Readable/long name of the video codec
@@ -51,6 +74,12 @@ type Generator struct {
 	avfContext         *C.struct_AVFormatContext
 	avcContext         *C.struct_AVCodecContext
 }
+
+// Width returns the width of the video
+func (g *Generator) Width() int { return g.width }
+
+// Height returns the height of the video
+func (g *Generator) Height() int { return g.height }
 
 // NewGenerator returns new generator of screenshots for the video file fn.
 func NewGenerator(fn string) (_ *Generator, err error) {
@@ -99,8 +128,8 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 	}
 	width := int(avcCtx.width)
 	height := int(avcCtx.height)
-	fps := (float64(streams[vStreamIndex].r_frame_rate.num) /
-		float64(streams[vStreamIndex].r_frame_rate.den))
+	fps := (float64(streams[vStreamIndex].avg_frame_rate.num) /
+		float64(streams[vStreamIndex].avg_frame_rate.den))
 	vCodecName := strings.ToUpper(C.GoString(vCodec.name))
 	vCodecHuman := C.GoString(vCodec.long_name)
 
@@ -117,8 +146,8 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 
 	return &Generator{
 		Filename:           fn,
-		Width:              width,
-		Height:             height,
+		width:              width,
+		height:             height,
 		Duration:           duration,
 		VideoCodec:         vCodecName,
 		VideoCodecLongName: vCodecHuman,
@@ -137,7 +166,7 @@ func NewGenerator(fn string) (_ *Generator, err error) {
 
 // Image returns a screenshot at the ts milliseconds.
 func (g *Generator) Image(ts int64) (image.Image, error) {
-	return g.ImageWxH(ts, g.Width, g.Height)
+	return g.ImageWxH(ts, g.width, g.height)
 }
 
 // ImageWxH returns a screenshot at the ts milliseconds, scaled to the specified width and height.
@@ -172,7 +201,7 @@ func (g *Generator) ImageWxH(ts int64, width, height int) (image.Image, error) {
 	C.avcodec_flush_buffers(g.avcContext)
 	var pkt C.struct_AVPacket
 	var frameFinished C.int
-	for C.av_read_frame(g.avfContext, &pkt) == 0 {
+	for C.av_read_frame_wrapper(g.avfContext, &pkt) == 0 {
 		if int(pkt.stream_index) != g.vStreamIndex {
 			C.av_free_packet(&pkt)
 			continue
@@ -186,12 +215,12 @@ func (g *Generator) ImageWxH(ts int64, width, height int) (image.Image, error) {
 			continue
 		}
 		ctx := C.sws_getContext(
-			C.int(g.Width),
-			C.int(g.Height),
+			C.int(g.width),
+			C.int(g.height),
 			g.avcContext.pix_fmt,
 			C.int(width),
 			C.int(height),
-			C.PIX_FMT_RGBA,
+			C.AV_PIX_FMT_RGBA,
 			C.SWS_BICUBIC,
 			nil,
 			nil,
@@ -202,9 +231,10 @@ func (g *Generator) ImageWxH(ts int64, width, height int) (image.Image, error) {
 		}
 		srcSlice := (**C.uint8_t)(&frame.data[0])
 		srcStride := (*C.int)(&frame.linesize[0])
-		dst := (**C.uint8_t)(unsafe.Pointer(&img.Pix))
+		hdr := (*reflect.SliceHeader)(unsafe.Pointer(&img.Pix))
+		dst := (*C.uint8_t)(unsafe.Pointer(hdr.Data))
 		dstStride := (*C.int)(unsafe.Pointer(&[1]int{img.Stride}))
-		C.sws_scale(
+		C.sws_scale_wrapper(
 			ctx,
 			srcSlice,
 			srcStride,
@@ -220,6 +250,7 @@ func (g *Generator) ImageWxH(ts int64, width, height int) (image.Image, error) {
 
 // Close closes the internal ffmpeg context.
 func (g *Generator) Close() error {
+	C.avcodec_close(g.avcContext)
 	C.avformat_close_input(&g.avfContext)
 	return nil
 }
