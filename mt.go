@@ -13,6 +13,7 @@ import (
 	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"image"
 	"image/draw"
+	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -25,7 +26,8 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.5-dev"
+var version string = "1.0.6-dev"
+var timestamps []string
 
 //gets the timestamp value ("HH:MM:SS") and returns an image
 //TODO: rework this to take any string and a bool for full width/centered text
@@ -128,6 +130,10 @@ func GenerateScreenshots(fn string) []image.Image {
 		d = from
 	}
 
+	if viper.GetBool("vtt") {
+		timestamps = append(timestamps, "00:00:00")
+	}
+
 	for i := 0; i < viper.GetInt("numcaps"); i++ {
 		stamp := d
 		img, err := gen.Image(d)
@@ -175,6 +181,9 @@ func GenerateScreenshots(fn string) []image.Image {
 
 		timestamp := fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05"))
 		log.Infof("generating screenshot %02d/%02d at %s", i+1, viper.GetInt("numcaps"), timestamp)
+		if viper.GetBool("vtt") {
+			timestamps = append(timestamps, timestamp)
+		}
 		//var thumb image.Image
 		if viper.GetInt("width") > 0 {
 			img = imaging.Resize(img, viper.GetInt("width"), 0, imaging.Lanczos)
@@ -319,8 +328,10 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 	dst := imaging.New(imgWidth*columns+paddingColumns, imgHeight*imgRows+paddingRows, bgColor)
 	x := 0
 	curRow := 0
+
+	vttContent := "WEBVTT\n"
 	// paste thumbnails into the new image side by side with padding if enabled
-	for _, thumb := range thumbs {
+	for idx, thumb := range thumbs {
 
 		if x >= columns {
 			x = 0
@@ -340,6 +351,12 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 
 		dst = imaging.Paste(dst, thumb, image.Pt(xPos, yPos))
 		x = x + 1
+
+		if viper.GetBool("vtt") {
+			_, imgName := filepath.Split(fn)
+			vttContent = fmt.Sprintf("%s\n%s.000 --> %s.000\n%s#xywh=%d,%d,%d,%d\n", vttContent, timestamps[idx], timestamps[idx+1], imgName, xPos, yPos, imgWidth, imgHeight)
+		}
+
 	}
 
 	if viper.GetBool("header") {
@@ -356,7 +373,15 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 	if err != nil {
 		log.Fatalf("error saveing image: %v", err)
 	}
-	log.Infof("Saved to %s", fn)
+	log.Infof("Saved image to %s", fn)
+	if viper.GetBool("vtt") {
+		vttfn := strings.Replace(fn, filepath.Ext(fn), ".vtt", -1)
+		err = ioutil.WriteFile(vttfn, []byte(vttContent), 0644)
+		if err != nil {
+			log.Fatalf("error saveing vtt file: %v", err)
+		}
+		log.Infof("Saved vtt to %s", vttfn)
+	}
 }
 
 func appendHeader(im image.Image) image.Image {
@@ -503,6 +528,7 @@ func main() {
 	viper.SetDefault("sfw", false)
 	viper.SetDefault("fast", false)
 	viper.SetDefault("show_config", false)
+	viper.SetDefault("vtt", false)
 
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -603,6 +629,9 @@ func main() {
 	flag.Bool("fast", viper.GetBool("fast"), "inacurate but faster seeking")
 	viper.BindPFlag("fast", flag.Lookup("fast"))
 
+	flag.Bool("vtt", false, "create a .vtt file as well")
+	viper.BindPFlag("vtt", flag.Lookup("vtt"))
+
 	viper.AutomaticEnv()
 
 	viper.SetConfigType("json")
@@ -671,6 +700,12 @@ NOTE: fancy has best results if it is applied as last filter!
 
 	if viper.GetBool("verbose") {
 		log.SetLevel(log.DebugLevel)
+	}
+
+	if viper.GetBool("vtt") {
+		viper.Set("header", false)
+		viper.Set("header_meta", false)
+		viper.Set("padding", 0)
 	}
 
 	// print config file and used values!
