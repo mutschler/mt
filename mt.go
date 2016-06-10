@@ -26,7 +26,7 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.6-dev"
+var version string = "1.0.6"
 var timestamps []string
 
 //gets the timestamp value ("HH:MM:SS") and returns an image
@@ -130,7 +130,7 @@ func GenerateScreenshots(fn string) []image.Image {
 		d = from
 	}
 
-	if viper.GetBool("vtt") {
+	if viper.GetBool("webvtt") {
 		timestamps = append(timestamps, "00:00:00")
 	}
 
@@ -181,7 +181,7 @@ func GenerateScreenshots(fn string) []image.Image {
 
 		timestamp := fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05"))
 		log.Infof("generating screenshot %02d/%02d at %s", i+1, viper.GetInt("numcaps"), timestamp)
-		if viper.GetBool("vtt") {
+		if viper.GetBool("webvtt") {
 			timestamps = append(timestamps, timestamp)
 		}
 		//var thumb image.Image
@@ -352,7 +352,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 		dst = imaging.Paste(dst, thumb, image.Pt(xPos, yPos))
 		x = x + 1
 
-		if viper.GetBool("vtt") {
+		if viper.GetBool("webvtt") {
 			_, imgName := filepath.Split(fn)
 			vttContent = fmt.Sprintf("%s\n%s.000 --> %s.000\n%s#xywh=%d,%d,%d,%d\n", vttContent, timestamps[idx], timestamps[idx+1], imgName, xPos, yPos, imgWidth, imgHeight)
 		}
@@ -374,7 +374,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 		log.Fatalf("error saveing image: %v", err)
 	}
 	log.Infof("Saved image to %s", fn)
-	if viper.GetBool("vtt") {
+	if viper.GetBool("webvtt") {
 		vttfn := strings.Replace(fn, filepath.Ext(fn), ".vtt", -1)
 		err = ioutil.WriteFile(vttfn, []byte(vttContent), 0644)
 		if err != nil {
@@ -528,7 +528,7 @@ func main() {
 	viper.SetDefault("sfw", false)
 	viper.SetDefault("fast", false)
 	viper.SetDefault("show_config", false)
-	viper.SetDefault("vtt", false)
+	viper.SetDefault("webvtt", false)
 
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -629,8 +629,8 @@ func main() {
 	flag.Bool("fast", viper.GetBool("fast"), "inacurate but faster seeking")
 	viper.BindPFlag("fast", flag.Lookup("fast"))
 
-	flag.Bool("vtt", false, "create a .vtt file as well")
-	viper.BindPFlag("vtt", flag.Lookup("vtt"))
+	flag.Bool("webvtt", viper.GetBool("webvtt"), "create a .vtt file as well")
+	viper.BindPFlag("webvtt", flag.Lookup("webvtt"))
 
 	viper.AutomaticEnv()
 
@@ -702,7 +702,7 @@ NOTE: fancy has best results if it is applied as last filter!
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if viper.GetBool("vtt") {
+	if viper.GetBool("webvtt") {
 		viper.Set("header", false)
 		viper.Set("header_meta", false)
 		viper.Set("padding", 0)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6 (10 Jun 2016)
+
+### New
+- option to generate WEBVTT Files (--webvtt)
 
 ## 1.0.5 (07 Jun 2016)
 

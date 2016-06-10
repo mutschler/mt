@@ -38,7 +38,7 @@ type config struct {
 	Watermark_All string `json:"watermark_all"`
 	Comment       string `json:"comment"`
 	Skip_Blurry   bool   `json:"skip_blurry"`
-	Vtt           bool   `json:"vtt"`
+	Webvtt        bool   `json:"webvtt"`
 }
 
 var C config
