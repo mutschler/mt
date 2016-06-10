@@ -64,6 +64,7 @@ and load a custom config on runtime:
 | skip_existing | false | skip movie if there is already a jpg with the same name |
 | overwrite | false | by default mt will increment the filename by adding -01 if there is already a jpg use --overwrite to overwrite the image instead |
 | fast | false | makes mt faster a lot, but seeking will be more inacurate and may produce duplicate screens |
+| webvtt | false | create a webvtt file for use with html5 video players |
 
 ## Usage
 
