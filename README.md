@@ -1,4 +1,4 @@
-# mt
+# mt  [![Build Status](https://travis-ci.org/mutschler/mt.svg?branch=master)](https://travis-ci.org/mutschler/mt)
 
 mt is a lightweight media thumbnailer. it aims to be a simple and fast alternative to outlayers awesome [Video Contact Sheet](http://p.outlyer.net/vcs/)
 
