@@ -6,7 +6,7 @@ mt is a lightweight media thumbnailer. it aims to be a simple and fast alternati
 
 ## Download
 
-you can download the latest version [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest) from [githubs release page](https://github.com/mutschler/mt/releases/latest) alternatively you can install `mt` from source as descibed down below
+you can download the latest version [![GitHub release](https://img.shields.io/github/release/mutschler/mt.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest) from [githubs release page](https://github.com/mutschler/mt/releases/latest) alternatively you can install `mt` from source as descibed down below
 
 ## Installation from Source
 
