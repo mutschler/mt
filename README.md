@@ -1,10 +1,12 @@
-# mt [![Github All Releases](https://img.shields.io/github/downloads/mutschler/mt/total.svg?style=flat-square)]() [![Github All Releases](https://img.shields.io/github/release/mutschler/mt.svg?style=flat-square)]()
+[![Build Status](https://img.shields.io/travis/mutschler/mt/master.svg?style=flat-square)](https://travis-ci.org/mutschler/mt) [![Github All Releases](https://img.shields.io/github/downloads/mutschler/mt/total.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest) [![Github Latest Release](https://img.shields.io/github/release/mutschler/mt.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest)
+
+# mt
 
 mt is a lightweight media thumbnailer. it aims to be a simple and fast alternative to outlayers awesome [Video Contact Sheet](http://p.outlyer.net/vcs/)
 
 ## Download
 
-you can download the latest version from [githubs release page](https://github.com/mutschler/mt/releases/latest) alternatively you can install `mt` from source as descibed down below
+you can download the latest version [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest) from [githubs release page](https://github.com/mutschler/mt/releases/latest) alternatively you can install `mt` from source as descibed down below
 
 ## Installation from Source
 
@@ -71,8 +73,6 @@ and load a custom config on runtime:
 | overwrite | false | by default mt will increment the filename by adding -01 if there is already a jpg use --overwrite to overwrite the image instead |
 | fast | false | makes mt faster a lot, but seeking will be more inacurate and may produce duplicate screens |
 | webvtt | false | create a webvtt file for use with html5 video players |
-| blur_threshold | 62 | threshold to consider an image blurry |
-| blank_threshold | 85 | threshold to consider an image blank |
 
 please note that all those values are also available as runtime pflags just replace the `_` with an `-` ex: `single_images` will get `single-images`
 
