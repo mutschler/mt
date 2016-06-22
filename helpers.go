@@ -41,6 +41,31 @@ func fileExists(fname string) bool {
 	return false
 }
 
+// decides if an image should be skipped based on settings
+func skipImage(img image.Image) bool {
+
+	if viper.GetBool("skip_blurry") {
+		if isBluryImage(img) {
+			return true
+		}
+	}
+
+	if viper.GetBool("skip_blank") {
+		if isBlankImage(img) {
+			return true
+		}
+	}
+
+	if viper.GetBool("sfw") {
+		if isNudeImage(img) {
+			return true
+		}
+	}
+
+	return false
+
+}
+
 // decides if an image is to blury
 func isBluryImage(img image.Image) bool {
 	blur := 0
@@ -63,7 +88,7 @@ func isBluryImage(img image.Image) bool {
 	}
 
 	blurPercent := int((float32(blur) / float32(pixels)) * 100)
-	if blurPercent >= 62 {
+	if blurPercent >= viper.GetInt("blur_threshold") {
 		log.Debugf("image is considered blurry, dropping frame", blurPercent)
 		return true
 	}
@@ -76,13 +101,9 @@ func isBlankImage(img image.Image) bool {
 	allPixels = 0
 	img = imaging.AdjustFunc(img, countBlankPixels)
 	blankPercent := blankPixels / (allPixels / 100)
-	if blankPercent >= 85 {
+	if blankPercent >= viper.GetInt("blank_threshold") {
 		log.Debugf("image is %d percent black, dropping frame", blankPercent)
 		return true
-	}
-
-	if viper.GetBool("skip_blurry") {
-		return isBluryImage(img)
 	}
 
 	return false
@@ -145,13 +166,10 @@ func isNudeImage(img image.Image) bool {
 		log.Error(err)
 		return false
 	}
-	// d := nude.NewDetector(img)
-	// isNude, err := d.Parse()
-	// if err != nil {
-	//     log.Fatal(err)
-	// }
-	// fmt.Printf("isNude = %v\n", isNude)
-	// fmt.Printf("%s\n", d)
+	if isNude {
+		log.Debugf("image skipped because of nudity detection")
+	}
+
 	return isNude
 }
 

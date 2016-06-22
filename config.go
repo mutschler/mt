@@ -23,22 +23,23 @@ type config struct {
 	Bg_Content         string `json:"bg_content"`
 	Header_Image       string `json:"header_image"`
 	Skip_Blank         bool   `json:"skip_blank"`
-	// Version            bool   `json:"version"`
-	Header        bool   `json:"header"`
-	Header_Meta   bool   `json:"header_meta"`
-	Filter        string `json:"filter"`
-	Filename      string `json:"filename"`
-	From          string `json:"from"`
-	To            string `json:"to"`
-	Skip_Existing bool   `json:"skip_existing"`
-	Overwrite     bool   `json:"overwrite"`
-	SFW           bool   `json:"sfw"`
-	Watermark     string `json:"watermark"`
-	Fast          bool   `json:"fast"`
-	Watermark_All string `json:"watermark_all"`
-	Comment       string `json:"comment"`
-	Skip_Blurry   bool   `json:"skip_blurry"`
-	Webvtt        bool   `json:"webvtt"`
+	Header             bool   `json:"header"`
+	Header_Meta        bool   `json:"header_meta"`
+	Filter             string `json:"filter"`
+	Filename           string `json:"filename"`
+	From               string `json:"from"`
+	To                 string `json:"to"`
+	Skip_Existing      bool   `json:"skip_existing"`
+	Overwrite          bool   `json:"overwrite"`
+	SFW                bool   `json:"sfw"`
+	Watermark          string `json:"watermark"`
+	Fast               bool   `json:"fast"`
+	Watermark_All      string `json:"watermark_all"`
+	Comment            string `json:"comment"`
+	Skip_Blurry        bool   `json:"skip_blurry"`
+	Blur_Threshold     int    `json:"blur_threshold"`
+	Blank_Threshold    int    `json:"blank_threshold"`
+	Webvtt             bool   `json:"webvtt"`
 }
 
 var C config

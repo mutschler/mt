@@ -26,7 +26,7 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.6"
+var version string = "1.0.7-dev"
 var timestamps []string
 
 //gets the timestamp value ("HH:MM:SS") and returns an image
@@ -141,28 +141,13 @@ func GenerateScreenshots(fn string) []image.Image {
 			log.Fatalf("Can't generate screenshot: %v", err)
 			os.Exit(1)
 		}
-		//try to detect images with a large black/white amount
-		if viper.GetBool("skip_blank") {
-			maxCount := 3
-			count := 1
-			for isBlankImage(img) == true && maxCount >= count {
-				log.Warnf("[%d/%d] blank/blurry frame detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((stamp+10000)/1000, 0).UTC().Format("15:04:05")))
-				if stamp >= duration-inc {
-					log.Error("end of clip reached... no more blank frames can be skipped")
-					i = viper.GetInt("numcaps") - 1
-					break
-				}
-				stamp = d + (10000 * int64(count))
-				img, _ = gen.Image(stamp)
-				count = count + 1
-			}
-		}
 
-		if viper.GetBool("sfw") {
+		// should we skip any images?
+		if viper.GetBool("skip_blank") || viper.GetBool("skip_blurry") || viper.GetBool("sfw") {
 			maxCount := 3
 			count := 1
-			for isNudeImage(img) == true && maxCount >= count {
-				log.Warnf("[%d/%d] nude image detected at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((stamp+10000)/1000, 0).UTC().Format("15:04:05")))
+			for skipImage(img) == true && maxCount >= count {
+				log.Warnf("[%d/%d] frame skipped based on settings at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((stamp+10000)/1000, 0).UTC().Format("15:04:05")))
 				if stamp >= duration-inc {
 					log.Error("end of clip reached... no more blank frames can be skipped")
 					i = viper.GetInt("numcaps") - 1
@@ -529,8 +514,10 @@ func main() {
 	viper.SetDefault("fast", false)
 	viper.SetDefault("show_config", false)
 	viper.SetDefault("webvtt", false)
+	viper.SetDefault("blur_threshold", 62)
+	viper.SetDefault("blank_threshold", 85)
 
-	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures")
+	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures to make")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
 
 	flag.IntP("columns", "c", viper.GetInt("columns"), "number of columns")
@@ -548,10 +535,10 @@ func main() {
 	flag.Int("font-size", viper.GetInt("font_size"), "font size in px")
 	viper.BindPFlag("font_size", flag.Lookup("font-size"))
 
-	flag.BoolP("disable-timestamps", "d", viper.GetBool("disable_timestamps"), "disable-timestamps")
+	flag.BoolP("disable-timestamps", "d", viper.GetBool("disable_timestamps"), "disable timestamps on images")
 	viper.BindPFlag("disable_timestamps", flag.Lookup("disable-timestamps"))
 
-	flag.BoolP("verbose", "v", viper.GetBool("verbose"), "verbose output")
+	flag.BoolP("verbose", "v", viper.GetBool("verbose"), "enable verbose output")
 	viper.BindPFlag("verbose", flag.Lookup("verbose"))
 
 	flag.BoolP("single-images", "s", viper.GetBool("single_images"), "save single images instead of one combined contact sheet")
@@ -563,7 +550,7 @@ func main() {
 	flag.String("fg-header", viper.GetString("fg_header"), "rgb font color for header")
 	viper.BindPFlag("fg_header", flag.Lookup("fg-header"))
 
-	flag.String("bg-content", viper.GetString("bg_content"), "rgb background color for header")
+	flag.String("bg-content", viper.GetString("bg_content"), "rgb background color for the main content area")
 	viper.BindPFlag("bg_content", flag.Lookup("bg-content"))
 
 	flag.String("header-image", viper.GetString("header_image"), "image to put in the header")
@@ -581,7 +568,7 @@ func main() {
 	flag.BoolP("skip-blank", "b", viper.GetBool("skip_blank"), "skip up to 3 images in a row which seem to be blank (can slow mt down)")
 	viper.BindPFlag("skip_blank", flag.Lookup("skip-blank"))
 
-	flag.Bool("skip-blurry", viper.GetBool("skip_blurry"), "needs --skip-blank and also trys to skip blurry images")
+	flag.Bool("skip-blurry", viper.GetBool("skip_blurry"), "skip up to 3 images in a row which seem to be blurry (can slow mt down)")
 	viper.BindPFlag("skip_blurry", flag.Lookup("skip-blurry"))
 
 	flag.Bool("version", false, "show version number and exit")
@@ -590,13 +577,13 @@ func main() {
 	flag.Bool("header", viper.GetBool("header"), "append header to the contact sheet")
 	viper.BindPFlag("header", flag.Lookup("header"))
 
-	flag.Bool("header-meta", viper.GetBool("header_meta"), "append codec, fps and bitrate informations to the header")
+	flag.Bool("header-meta", viper.GetBool("header_meta"), "also add codec, fps and bitrate informations to the header")
 	viper.BindPFlag("header_meta", flag.Lookup("header-meta"))
 
-	flag.String("filter", viper.GetString("filter"), "apply filter to images, see --filters for available filters")
+	flag.String("filter", viper.GetString("filter"), "apply one or mor filters to images (comma seperated list), see --filters for available filters")
 	viper.BindPFlag("filter", flag.Lookup("filter"))
 
-	flag.Bool("filters", false, "list all available filters")
+	flag.Bool("filters", false, "list all available image filters")
 	viper.BindPFlag("filters", flag.Lookup("filters"))
 
 	flag.String("output", viper.GetString("filename"), "set an output filename")
@@ -608,10 +595,10 @@ func main() {
 	flag.String("to", viper.GetString("end"), "set end point in format HH:MM:SS")
 	viper.BindPFlag("end", flag.Lookup("to"))
 
-	flag.String("save-config", viper.GetString("save_config"), "save config with current settings to this path")
+	flag.String("save-config", viper.GetString("save_config"), "save config with current settings to this file")
 	viper.BindPFlag("save_config", flag.Lookup("save-config"))
 
-	flag.String("config-file", viper.GetString("config_file"), "use this configuration file")
+	flag.String("config-file", viper.GetString("config_file"), "use a specific configuration file")
 	viper.BindPFlag("config_file", flag.Lookup("config-file"))
 
 	flag.Bool("skip-existing", viper.GetBool("skip_existing"), "skip any item if there is already a screencap present")
@@ -623,7 +610,7 @@ func main() {
 	flag.Bool("sfw", viper.GetBool("sfw"), "use nudity detection to generate sfw images (HIGHLY EXPERIMENTAL)")
 	viper.BindPFlag("sfw", flag.Lookup("sfw"))
 
-	flag.Bool("show-config", viper.GetBool("show_config"), "use nudity detection to generate sfw images (HIGHLY EXPERIMENTAL)")
+	flag.Bool("show-config", viper.GetBool("show_config"), "show path to currently used config file as well as used values and exit")
 	viper.BindPFlag("show_config", flag.Lookup("show-config"))
 
 	flag.Bool("fast", viper.GetBool("fast"), "inacurate but faster seeking")
@@ -631,6 +618,12 @@ func main() {
 
 	flag.Bool("webvtt", viper.GetBool("webvtt"), "create a .vtt file as well")
 	viper.BindPFlag("webvtt", flag.Lookup("webvtt"))
+
+	flag.Int("blur-threshold", viper.GetInt("blur_threshold"), "set a custom threshold to use for blurry image detection (defaults to 62)")
+	viper.BindPFlag("blur_threshold", flag.Lookup("blur-threshold"))
+
+	flag.Int("blank-threshold", viper.GetInt("blank_threshold"), "set a custom threshold to use for blank image detection (defaults to 85)")
+	viper.BindPFlag("blank_threshold", flag.Lookup("blank-threshold"))
 
 	viper.AutomaticEnv()
 

@@ -25,5 +25,9 @@
     "watermark": "",
     "fast": false,
     "watermark_all": "",
-    "comment": "made with mt and some love..."
+    "comment": "made with mt and some love...",
+    "skip_blurry": false,
+    "blur_threshold": 62,
+    "blank_threshold": 85,
+    "webvtt": false
 }

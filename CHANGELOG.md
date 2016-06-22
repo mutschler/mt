@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.7 (dev)
+
+## New
+- options for blur and blank threshold
+
+### Changes
+- improve usage of different skip functions when used in combination
+- changed help message for some flags
+
 ## 1.0.6 (10 Jun 2016)
 
 ### New
