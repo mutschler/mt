@@ -275,7 +275,12 @@ func GenerateScreenshots(fn string) []image.Image {
 		}
 
 		if viper.GetBool("single_images") {
-			fname := getSavePath(mpath, i+1)
+			var fname string
+			if viper.GetInt("numcaps") == 1 {
+				fname = getSavePath(mpath, 0)
+			} else {
+				fname = getSavePath(mpath, i+1)
+			}
 			createTargetDirs(fname)
 			imaging.Save(img, fname)
 		} else {

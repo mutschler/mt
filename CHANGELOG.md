@@ -8,6 +8,7 @@
 ### Changes
 - improve usage of different skip functions when used in combination
 - changed help message for some flags
+- dont append {{Count}} to filename when useing --single-images with --numcap 1
 
 ## 1.0.6 (10 Jun 2016)
 
