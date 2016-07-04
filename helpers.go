@@ -70,8 +70,15 @@ func skipImage(img image.Image) bool {
 func isBluryImage(img image.Image) bool {
 	blur := 0
 	g := gift.New(
-		gift.Sobel(),
+		gift.Convolution(
+			[]float32{
+				-1, -1, -1,
+				-1, 8, -1,
+				-1, -1, -1,
+			},
+			false, false, false, 0.0),
 	)
+	img = imaging.Grayscale(img)
 	dst := image.NewRGBA(g.Bounds(img.Bounds()))
 	g.Draw(dst, img)
 	pixels := 0
