@@ -283,6 +283,9 @@ func GenerateScreenshots(fn string) []image.Image {
 			}
 			createTargetDirs(fname)
 			imaging.Save(img, fname)
+
+			uploadFile(fname)
+
 		} else {
 			thumbnails = append(thumbnails, img)
 		}
@@ -372,6 +375,9 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 		}
 		log.Infof("Saved vtt to %s", vttfn)
 	}
+
+	uploadFile(fn)
+
 }
 
 func appendHeader(im image.Image) image.Image {
@@ -521,6 +527,8 @@ func main() {
 	viper.SetDefault("webvtt", false)
 	viper.SetDefault("blur_threshold", 62)
 	viper.SetDefault("blank_threshold", 85)
+	viper.SetDefault("upload", false)
+	viper.SetDefault("upload_url", "http://example.com/upload")
 
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures to make")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -630,6 +638,12 @@ func main() {
 	flag.Int("blank-threshold", viper.GetInt("blank_threshold"), "set a custom threshold to use for blank image detection (defaults to 85)")
 	viper.BindPFlag("blank_threshold", flag.Lookup("blank-threshold"))
 
+	flag.Bool("upload", viper.GetBool("upload"), "post file via http form submit")
+	viper.BindPFlag("upload", flag.Lookup("upload"))
+
+	flag.String("upload-url", viper.GetString("upload_url"), "url to use for --upload")
+	viper.BindPFlag("upload_url", flag.Lookup("upload-url"))
+
 	viper.AutomaticEnv()
 
 	viper.SetConfigType("json")
@@ -652,6 +666,12 @@ func main() {
 	if viper.GetBool("show_version") {
 		fmt.Fprintf(os.Stderr, "mt Version %s\n", version)
 		os.Exit(1)
+	}
+
+	if viper.GetBool("upload") {
+		if viper.GetString("upload_url") == "" || viper.GetString("upload_url") == "http://example.com/upload" {
+			log.Errorf("can't use upload function without an url! please use --upload-url");
+		}
 	}
 
 	if viper.GetString("config_file") != "" {

@@ -4,6 +4,7 @@
 
 ## New
 - options for blur and blank threshold
+- option to upload generated image to a given url (--upload and --upload-url)
 
 ### Changes
 - improve usage of different skip functions when used in combination

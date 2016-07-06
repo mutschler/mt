@@ -40,6 +40,8 @@ type config struct {
 	Blur_Threshold     int    `json:"blur_threshold"`
 	Blank_Threshold    int    `json:"blank_threshold"`
 	Webvtt             bool   `json:"webvtt"`
+	Upload             bool   `json:"upload"`
+	Upload_URL         string `json:"upload_url"`
 }
 
 var C config
