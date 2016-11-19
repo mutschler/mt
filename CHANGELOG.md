@@ -1,8 +1,8 @@
 # Changelog
 
-## 1.0.7 (dev)
+## 1.0.7 (20 Nov 2016)
 
-## New
+### New
 - options for blur and blank threshold
 - option to upload generated image to a given url (--upload and --upload-url)
 
@@ -10,6 +10,7 @@
 - improve usage of different skip functions when used in combination
 - changed help message for some flags
 - dont append {{Count}} to filename when useing --single-images with --numcap 1
+- Fix an error where Resulution wasn't correctly added to header
 
 ## 1.0.6 (10 Jun 2016)
 

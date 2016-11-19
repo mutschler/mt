@@ -467,7 +467,7 @@ func createHeader(fn string) []string {
 
 	duration := fmt.Sprintf("Duration: %s", time.Unix(gen.Duration/1000, 0).UTC().Format("15:04:05"))
 
-	dimension := fmt.Sprintf("Resolution: %dx%d", gen.Width, gen.Height)
+	dimension := fmt.Sprintf("Resolution: %dx%d", gen.Width(), gen.Height())
 
 	header = append(header, fname)
 	header = append(header, fsize)
