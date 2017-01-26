@@ -1,5 +1,11 @@
 # Changelog
 
+## develop
+
+### Changes
+- print errors when uploading fails
+
+
 ## 1.0.7 (20 Nov 2016)
 
 ### New
