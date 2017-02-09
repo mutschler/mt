@@ -1,38 +1,42 @@
 # Changelog
 
-## develop
+## 1.0.8 (09 Feb 2017)
+
+### New
+- option to specify an interval (in seconds) instead of numcaps (`--interval`)
+- option which tries to skip ending credits by cuttin of 4 minutes of the movie (`--skip-credits`)
 
 ### Changes
 - print errors when uploading fails
-
+- with 1.0.8 the default behaviour of mt changed, `skip-credits` is now an opt-in and not the default anymore
 
 ## 1.0.7 (20 Nov 2016)
 
 ### New
 - options for blur and blank threshold
-- option to upload generated image to a given url (--upload and --upload-url)
+- option to upload generated image to a given url (`--upload` and `--upload-url`)
 
 ### Changes
 - improve usage of different skip functions when used in combination
 - changed help message for some flags
-- dont append {{Count}} to filename when useing --single-images with --numcap 1
+- dont append `{{Count}}` to filename when useing `--single-images` with `--numcap 1`
 - Fix an error where Resulution wasn't correctly added to header
 
 ## 1.0.6 (10 Jun 2016)
 
 ### New
-- option to generate WEBVTT Files (--webvtt)
+- option to generate WEBVTT Files (`--webvtt`)
 
 ## 1.0.5 (07 Jun 2016)
 
 ### New
-- option to put a watermark on the bottom-left corner of each image (--watermark-all)
-- option to append a comment to the header area (--comment)
-- option to list used config values (--show-config)
-- experimental function for blur detection (--skip-blurry)
+- option to put a watermark on the bottom-left corner of each image (`--watermark-all`)
+- option to append a comment to the header area (`--comment`)
+- option to list used config values (`--show-config`)
+- experimental function for blur detection (`--skip-blurry`)
 
 ### Changes
-- fixed a typo in config for skip_existing option
+- fixed a typo in config for `skip-existing` option
 - compatible with go 1.6 and ffmpeg 3.0
 
 ## 1.0.4 (07 Jan 2016)
@@ -54,7 +58,7 @@
 - option to save current settings to a settings file
 - include default font and images in the binary
 - added new filters
-- added --to and --from options to use specific parts of the video file only
+- added `--to` and `--from` options to use specific parts of the video file only
 - option to provide a custom output path
 
 ## 1.0.2 (24 Aug 2015)

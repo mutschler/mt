@@ -73,6 +73,8 @@ and load a custom config on runtime:
 | overwrite | false | by default mt will increment the filename by adding -01 if there is already a jpg use --overwrite to overwrite the image instead |
 | fast | false | makes mt faster a lot, but seeking will be more inacurate and may produce duplicate screens |
 | webvtt | false | create a webvtt file for use with html5 video players |
+| interval | 0 | creates a screencap every interval seconds, this overwrites numcaps |
+| skip_credits | false | try to skip movie credits by cutting of 4 minutes or 10% of the length |
 
 please note that all those values are also available as runtime pflags just replace the `_` with an `-` ex: `single_images` will get `single-images`
 

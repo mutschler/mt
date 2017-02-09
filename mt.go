@@ -26,8 +26,9 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.7-dev"
+var version string = "1.0.8"
 var timestamps []string
+var numcaps int
 
 //gets the timestamp value ("HH:MM:SS") and returns an image
 //TODO: rework this to take any string and a bool for full width/centered text
@@ -96,12 +97,14 @@ func GenerateScreenshots(fn string) []image.Image {
 		end = stringToMS(viper.GetString("end"))
 	}
 
-	percentage := int64((float32(duration / 100)) * (5.5 * 2))
-	//cut of 2 minutes of video if video has at least 4 minutes else cut away (or at least 10.10%)
-	if duration > (120000*2) && 120000 > percentage {
-		duration = duration - 120000
-	} else {
-		duration = duration - percentage
+	if viper.GetBool("skip_credits") {
+		percentage := int64((float32(duration / 100)) * (5.5 * 2))
+		//cut of 2 minutes of video if video has at least 4 minutes else cut away (or at least 10.10%)
+		if duration > (120000*2) && 120000 > percentage {
+			duration = duration - 120000
+		} else {
+			duration = duration - percentage
+		}
 	}
 
 	if end > 0 {
@@ -112,10 +115,17 @@ func GenerateScreenshots(fn string) []image.Image {
 		duration = duration - from
 	}
 
-	inc := duration / (int64(viper.GetInt("numcaps")))
+	numcaps = viper.GetInt("numcaps")
+	if viper.GetInt("interval") > 0 {
+		numcaps = int((duration / 1000) / int64(viper.GetInt("interval")))
+		log.Debugf("interval option set, numcaps are set to %d", numcaps)
+		viper.Set("columns", int(math.Sqrt(float64(numcaps))))
+	}
+
+	inc := duration / (int64(numcaps))
 
 	if end > 0 && from > 0 {
-		inc = duration / (int64(viper.GetInt("numcaps")) - 1)
+		inc = duration / (int64(numcaps) - 1)
 	}
 
 	if inc <= 60000 {
@@ -134,7 +144,7 @@ func GenerateScreenshots(fn string) []image.Image {
 		timestamps = append(timestamps, "00:00:00")
 	}
 
-	for i := 0; i < viper.GetInt("numcaps"); i++ {
+	for i := 0; i < numcaps; i++ {
 		stamp := d
 		img, err := gen.Image(d)
 		if err != nil {
@@ -150,7 +160,7 @@ func GenerateScreenshots(fn string) []image.Image {
 				log.Warnf("[%d/%d] frame skipped based on settings at: %s retry at: %s", count, maxCount, fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05")), fmt.Sprintf(time.Unix((stamp+10000)/1000, 0).UTC().Format("15:04:05")))
 				if stamp >= duration-inc {
 					log.Error("end of clip reached... no more blank frames can be skipped")
-					i = viper.GetInt("numcaps") - 1
+					i = numcaps - 1
 					break
 				}
 				stamp = d + (10000 * int64(count))
@@ -165,7 +175,7 @@ func GenerateScreenshots(fn string) []image.Image {
 		}
 
 		timestamp := fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05"))
-		log.Infof("generating screenshot %02d/%02d at %s", i+1, viper.GetInt("numcaps"), timestamp)
+		log.Infof("generating screenshot %02d/%02d at %s", i+1, numcaps, timestamp)
 		if viper.GetBool("webvtt") {
 			timestamps = append(timestamps, timestamp)
 		}
@@ -230,7 +240,7 @@ func GenerateScreenshots(fn string) []image.Image {
 		}
 
 		//watermark middle image
-		if i == (viper.GetInt("numcaps")-1)/2 && viper.GetString("watermark") != "" && !viper.GetBool("single_images") {
+		if i == (numcaps-1)/2 && viper.GetString("watermark") != "" && !viper.GetBool("single_images") {
 			ov, err := imaging.Open(viper.GetString("watermark"))
 			if err == nil {
 				if ov.Bounds().Dx() > img.Bounds().Dx() {
@@ -276,7 +286,7 @@ func GenerateScreenshots(fn string) []image.Image {
 
 		if viper.GetBool("single_images") {
 			var fname string
-			if viper.GetInt("numcaps") == 1 {
+			if numcaps == 1 {
 				fname = getSavePath(mpath, 0)
 			} else {
 				fname = getSavePath(mpath, i+1)
@@ -514,7 +524,7 @@ func main() {
 	viper.SetDefault("header_image", "")
 	viper.SetDefault("header_meta", false)
 	viper.SetDefault("watermark", "")
-	viper.SetDefault("comment", "")
+	viper.SetDefault("comment", "contactsheet created with mt (https://github.com/mutschler/mt)")
 	viper.SetDefault("watermark-all", "")
 	viper.SetDefault("filter", "none")
 	viper.SetDefault("skip_blank", false)
@@ -529,6 +539,8 @@ func main() {
 	viper.SetDefault("blank_threshold", 85)
 	viper.SetDefault("upload", false)
 	viper.SetDefault("upload_url", "http://example.com/upload")
+	viper.SetDefault("skip_credits", false)
+	viper.SetDefault("interval", 0)
 
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures to make")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -643,6 +655,12 @@ func main() {
 
 	flag.String("upload-url", viper.GetString("upload_url"), "url to use for --upload")
 	viper.BindPFlag("upload_url", flag.Lookup("upload-url"))
+
+	flag.IntP("interval", "i", viper.GetInt("interval"), "interval in seconds to take screencaps from, overwrites numcaps (defaults to 0)")
+	viper.BindPFlag("interval", flag.Lookup("interval"))
+
+	flag.Bool("skip-credits", viper.GetBool("skip_credits"), "tries to skip ending credits from screencap creation by cutting off 4 minutes or 10 percent of the clip (defaults to false)")
+	viper.BindPFlag("skip_credits", flag.Lookup("skip-credits"))
 
 	viper.AutomaticEnv()
 

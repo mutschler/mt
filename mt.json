@@ -25,9 +25,11 @@
     "watermark": "",
     "fast": false,
     "watermark_all": "",
-    "comment": "made with mt and some love...",
+    "comment": "contactsheet created with mt (https://github.com/mutschler/mt)",
     "skip_blurry": false,
     "blur_threshold": 62,
     "blank_threshold": 85,
-    "webvtt": false
+    "webvtt": false,
+    "upload": false,
+    "upload_url": "http://example.com/upload"
 }
