@@ -1,5 +1,7 @@
-[![Build Status](https://img.shields.io/travis/mutschler/mt/master.svg?style=flat-square)](https://travis-ci.org/mutschler/mt) [![Github All Releases](https://img.shields.io/github/downloads/mutschler/mt/total.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest) [![Github Latest Release](https://img.shields.io/github/release/mutschler/mt.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest)
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/media-thumber/Lobby)
 
+[![Build Status](https://img.shields.io/travis/mutschler/mt/master.svg?style=flat-square)](https://travis-ci.org/mutschler/mt) [![Github All Releases](https://img.shields.io/github/downloads/mutschler/mt/total.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest) [![Github Latest Release](https://img.shields.io/github/release/mutschler/mt.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest)
+ 
 # mt
 
 mt is a lightweight media thumbnailer. it aims to be a simple and fast alternative to outlayers awesome [Video Contact Sheet](http://p.outlyer.net/vcs/)
