@@ -26,7 +26,7 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.8"
+var version string = "1.0.8-dev"
 var timestamps []string
 var numcaps int
 
@@ -84,7 +84,10 @@ func GenerateScreenshots(fn string) []image.Image {
 
 	defer gen.Close()
 
-	duration := gen.Duration
+  // truncate duration to full seconds
+  // this prevents empty/black images when the movie is some milliseconds longer
+  // ffmpeg then sometimes takes a black screenshot AFTER the movie finished for some reason
+	duration := 1000 * (gen.Duration / 1000)
 	from := int64(0)
 	end := int64(0)
 
