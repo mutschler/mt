@@ -2,6 +2,8 @@
 
 # mt
 
+[![Join the chat at https://gitter.im/media-thumber/Lobby](https://badges.gitter.im/media-thumber/Lobby.svg)](https://gitter.im/media-thumber/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 mt is a lightweight media thumbnailer. it aims to be a simple and fast alternative to outlayers awesome [Video Contact Sheet](http://p.outlyer.net/vcs/)
 
 ## Download
