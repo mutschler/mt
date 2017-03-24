@@ -668,9 +668,9 @@ func main() {
 	viper.AutomaticEnv()
 
 	viper.SetConfigType("json")
+	viper.AddConfigPath("./")
 	viper.AddConfigPath("/etc/mt/")
 	viper.AddConfigPath("$HOME/.mt")
-	viper.AddConfigPath("./")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s: [flags] [file]\n", os.Args[0])
