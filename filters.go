@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
+	"github.com/disintegration/imaging"
 	"image"
 	"image/color"
 	"math"

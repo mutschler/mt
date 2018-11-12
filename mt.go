@@ -3,14 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mutschler/mt/Godeps/_workspace/src/code.google.com/p/jamslam-freetype-go/freetype"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/gift"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/dustin/go-humanize"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/opennota/screengen"
-	log "github.com/mutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
-	flag "github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/pflag"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"image"
 	"image/draw"
 	"io/ioutil"
@@ -20,6 +12,15 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/BurntSushi/freetype-go/freetype"
+	"github.com/disintegration/gift"
+	"github.com/disintegration/imaging"
+	"github.com/dustin/go-humanize"
+	log "github.com/sirupsen/logrus"
+	flag "github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"gitlab.com/opennota/screengen"
 )
 
 var blankPixels int
@@ -84,9 +85,9 @@ func GenerateScreenshots(fn string) []image.Image {
 
 	defer gen.Close()
 
-  // truncate duration to full seconds
-  // this prevents empty/black images when the movie is some milliseconds longer
-  // ffmpeg then sometimes takes a black screenshot AFTER the movie finished for some reason
+	// truncate duration to full seconds
+	// this prevents empty/black images when the movie is some milliseconds longer
+	// ffmpeg then sometimes takes a black screenshot AFTER the movie finished for some reason
 	duration := 1000 * (gen.Duration / 1000)
 	from := int64(0)
 	end := int64(0)
@@ -398,7 +399,7 @@ func appendHeader(im image.Image) image.Image {
 
 	font, err := freetype.ParseFont(fontBytes)
 	if err != nil {
-		log.Errorf("freetype parse error", err)
+		log.Errorf("freetype parse error: %v", err)
 		return timestamped
 	}
 
@@ -691,7 +692,7 @@ func main() {
 
 	if viper.GetBool("upload") {
 		if viper.GetString("upload_url") == "" || viper.GetString("upload_url") == "http://example.com/upload" {
-			log.Errorf("can't use upload function without an url! please use --upload-url");
+			log.Errorf("can't use upload function without an url! please use --upload-url")
 		}
 	}
 

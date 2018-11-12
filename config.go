@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/mitchellh/mapstructure"
-	log "github.com/mutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
+	"github.com/mitchellh/mapstructure"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"os"
 )
 

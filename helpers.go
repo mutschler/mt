@@ -3,11 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/gift"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/disintegration/imaging"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/koyachi/go-nude"
-	log "github.com/mutschler/mt/Godeps/_workspace/src/github.com/sirupsen/logrus"
-	"github.com/mutschler/mt/Godeps/_workspace/src/github.com/spf13/viper"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -19,6 +14,12 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/disintegration/gift"
+	"github.com/disintegration/imaging"
+	"github.com/koyachi/go-nude"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 // recursively creates all dirs for fn
@@ -96,7 +97,7 @@ func isBluryImage(img image.Image) bool {
 
 	blurPercent := int((float32(blur) / float32(pixels)) * 100)
 	if blurPercent >= viper.GetInt("blur_threshold") {
-		log.Debugf("image is considered blurry, dropping frame", blurPercent)
+		log.Debugf("image is considered blurry (%d), dropping frame", blurPercent)
 		return true
 	}
 	return false
@@ -209,7 +210,7 @@ func increamentSavePath(filename string, c int) string {
 	fname := filename
 	counter := c
 	for fileExists(fname) {
-		log.Debugf("image already existing at: %s")
+		log.Debugf("image already existing at: %s", fname)
 		fname = constructSavePath(filename, counter)
 		counter++
 	}
