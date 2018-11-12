@@ -27,7 +27,7 @@ var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.8-dev"
+var version string = "1.0.9"
 var timestamps []string
 var numcaps int
 
