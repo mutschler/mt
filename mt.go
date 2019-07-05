@@ -469,7 +469,7 @@ func createHeader(fn string) []string {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fsize := fmt.Sprintf("File Size: %s", humanize.Bytes(uint64(stat.Size())))
+	fsize := fmt.Sprintf("File Size: %s", humanize.IBytes(uint64(stat.Size())))
 	fname = fmt.Sprintf("File Name: %s", fname)
 
 	gen, err := screengen.NewGenerator(fn)
