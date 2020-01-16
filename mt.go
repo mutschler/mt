@@ -126,7 +126,6 @@ func GenerateScreenshots(fn string) []image.Image {
 		if durationSec < intervalSec {
 			log.Fatalf("Specified interval is longer than video duration, " +
 				"use smaller interval or set numcaps instead.")
-			os.Exit(1)
 		}
 		numcaps = int(durationSec / intervalSec)
 		log.Debugf("interval option set, numcaps are set to %d", numcaps)
