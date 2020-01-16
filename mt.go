@@ -121,7 +121,13 @@ func GenerateScreenshots(fn string) []image.Image {
 
 	numcaps = viper.GetInt("numcaps")
 	if viper.GetInt("interval") > 0 {
-		numcaps = int((duration / 1000) / int64(viper.GetInt("interval")))
+		var durationSec = duration / 1000
+		var intervalSec = int64(viper.GetInt("interval"))
+		if durationSec < intervalSec {
+			log.Fatalf("Specified interval is longer than video duration, " +
+				"use smaller interval or set numcaps instead.")
+		}
+		numcaps = int(durationSec / intervalSec)
 		log.Debugf("interval option set, numcaps are set to %d", numcaps)
 		viper.Set("columns", int(math.Sqrt(float64(numcaps))))
 	}
