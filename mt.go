@@ -76,7 +76,6 @@ func GenerateScreenshots(fn string) []image.Image {
 	gen, err := screengen.NewGenerator(fn)
 	if err != nil {
 		log.Fatalf("Error reading video file: %v", err)
-		os.Exit(1)
 	}
 
 	if viper.GetBool("fast") {
@@ -159,7 +158,6 @@ func GenerateScreenshots(fn string) []image.Image {
 		img, err := gen.Image(d)
 		if err != nil {
 			log.Fatalf("Can't generate screenshot: %v", err)
-			os.Exit(1)
 		}
 
 		// should we skip any images?
