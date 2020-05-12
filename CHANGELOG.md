@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.10 (12 May 2020)
+
+### Changes
+- fixed `--interval` based generation to be an actual interval instead of calculated numcaps
+
+## 1.0.9 (12 Nov 2018)
+
+### New
+- support vor portrait mode videos
+
+### Changes
+- config file lookup order now checks current directory first
+
 ## 1.0.8 (09 Feb 2017)
 
 ### New

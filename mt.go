@@ -145,6 +145,11 @@ func GenerateScreenshots(fn string) []image.Image {
 	}
 
 	d := inc
+
+	if viper.GetInt("interval") > 0 {
+		d = (int64(viper.GetInt("interval")) * 1000)
+	}
+
 	if from > 0 {
 		d = from
 	}
@@ -308,7 +313,11 @@ func GenerateScreenshots(fn string) []image.Image {
 			thumbnails = append(thumbnails, img)
 		}
 
-		d += inc
+		if viper.GetInt("interval") > 0 {
+			d += (int64(viper.GetInt("interval")) * 1000)
+		} else {
+			d += inc
+		}
 	}
 
 	return thumbnails
