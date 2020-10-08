@@ -158,12 +158,30 @@ func getFont(f string) ([]byte, error) {
 
 // takes a time based string 00:00:00 and converts it to milliseconds
 func stringToMS(s string) int64 {
+
+	if s == "0" {
+		return 0
+	}
+
 	x := strings.Split(s, ":")
+
+	if len(x) != 3 {
+		log.Warnf("unable to convert string '%s' into milliseconds string not in format hh:mm:ss", s)
+		return 0
+	}
+
 	hh, _ := strconv.Atoi(x[0])
 	mm, _ := strconv.Atoi(x[1])
 	ss, _ := strconv.Atoi(x[2])
+	ms := 0
 
-	end := (ss + (mm * 60) + (hh * 60 * 60)) * 1000
+	if strings.Contains(x[2], ".") {
+		x = strings.Split(x[2], ".")
+		ss, _ = strconv.Atoi(x[0])
+		ms, _ = strconv.Atoi(x[1])
+	}
+
+	end := ((ss + (mm * 60) + (hh * 60 * 60)) * 1000) + ms
 	return int64(end)
 }
 

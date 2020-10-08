@@ -88,16 +88,17 @@ func GenerateScreenshots(fn string) []image.Image {
 	// this prevents empty/black images when the movie is some milliseconds longer
 	// ffmpeg then sometimes takes a black screenshot AFTER the movie finished for some reason
 	duration := 1000 * (gen.Duration / 1000)
-	from := int64(0)
-	end := int64(0)
+	from := stringToMS(viper.GetString("from"))
+	end := stringToMS(viper.GetString("end"))
 
-	if viper.GetString("from") != "0" {
-		log.Infof("First screenshot will be at %s", viper.GetString("from"))
-		from = stringToMS(viper.GetString("from"))
+	if from > end {
+		log.Fatalf("from cant be higher than to")
 	}
-	if viper.GetString("end") != "0" {
+	if from > 0 {
+		log.Infof("First screenshot will be at %s", viper.GetString("from"))
+	}
+	if end > 0 && from < end {
 		log.Infof("Last screenshot will be at %s", viper.GetString("end"))
-		end = stringToMS(viper.GetString("end"))
 	}
 
 	if viper.GetBool("skip_credits") {
@@ -133,7 +134,7 @@ func GenerateScreenshots(fn string) []image.Image {
 
 	inc := duration / (int64(numcaps))
 
-	if end > 0 && from > 0 {
+	if end > 0 && from > 0 && numcaps > 1 {
 		inc = duration / (int64(numcaps) - 1)
 	}
 
@@ -531,8 +532,8 @@ func main() {
 	viper.SetDefault("verbose", false)
 	viper.SetDefault("bg_content", "0,0,0")
 	viper.SetDefault("border", 0)
-	viper.SetDefault("from", "0")
-	viper.SetDefault("end", "0")
+	viper.SetDefault("from", "00:00:00")
+	viper.SetDefault("end", "00:00:00")
 	viper.SetDefault("single_images", false)
 	viper.SetDefault("header", true)
 	viper.SetDefault("font_dirs", []string{})
