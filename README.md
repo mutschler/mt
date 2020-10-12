@@ -1,7 +1,7 @@
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/media-thumber/Lobby)
 
 [![Build Status](https://img.shields.io/travis/mutschler/mt/master.svg?style=flat-square)](https://travis-ci.org/mutschler/mt) [![Github All Releases](https://img.shields.io/github/downloads/mutschler/mt/total.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest) [![Github Latest Release](https://img.shields.io/github/release/mutschler/mt.svg?style=flat-square)](https://github.com/mutschler/mt/releases/latest)
- 
+
 # mt
 
 mt is a lightweight media thumbnailer. it aims to be a simple and fast alternative to outlayers awesome [Video Contact Sheet](http://p.outlyer.net/vcs/)
@@ -53,11 +53,16 @@ and load a custom config on runtime:
 | columns | 2 | how many columns should be used |
 | padding | 5 | add a padding around the images |
 | width | 400 | width of a single screenshot |
+| height | 0 | height of a single screenshot |
 | font_all | "Ubuntu.ttf" | Font to use for timestamps and header |
 | font_size | 12 | font size |
 | disable_timestamps | false | option to disable timestamp generation |
 | timestamp_opacity | 1.0 | opacity of the timestamps must be from 0.0 to 1.0 |
+| filename | {{.Path}}{{.Name}}.jpg | filename for the generated file |
+| verbose | false | verbose logging |
 | bg_content | "0,0,0" | RGB values for background color |
+| from | "00:00:00" | starting timestamp |
+| to | "00:00:00" | end timestamp |
 | single_images | false | will create a single image for each screenshot |
 | header | true | append a header with file informations |
 | header_meta | false | append codec, bitrate and FPS to header |
@@ -77,6 +82,30 @@ and load a custom config on runtime:
 | webvtt | false | create a webvtt file for use with html5 video players |
 | interval | 0 | creates a screencap every interval seconds, this overwrites numcaps |
 | skip_credits | false | try to skip movie credits by cutting of 4 minutes or 10% of the length |
+| webvtt | false | generate a webvtt file |
+| blur_threshold | 62 | threshold for blur detection |
+| blank_threshold | 85 | threshold for blank image detection |
+| upload | false | upload the generated image |
+| upload_url | "" | url to send the image to |
+
+
+## Upload Info
+
+`upload` needs `upload_url` to be set as well. You'll need a simple script on the Server that saves the content of `$_FILES["image"]`
+
+Uplad URL Example script:
+```
+<?php
+
+if(isset($_FILES["image"])) {
+  $uploadfile = "yourFilename.jpg";
+
+  move_uploaded_file($_FILES['image']['tmp_name'], $uploadfile))
+}
+
+?>
+```
+
 
 please note that all those values are also available as runtime pflags just replace the `_` with an `-` ex: `single_images` will get `single-images`
 
