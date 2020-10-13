@@ -17,7 +17,7 @@ all: ffmpeg
 ffmpeg:
 	wget -P /tmp $(FFMPEG_SRC)
 	tar -xf /tmp/$(FFMPEG_PKG).$(FFMPEG_EXT) -C /tmp/
-	cd /tmp/$(FFMPEG_PKG) && ./configure --disable-yasm --disable-programs --disable-doc --prefix=/tmp/ffmpeg && make --silent && make install --silent
+	cd /tmp/$(FFMPEG_PKG) && ./configure --disable-yasm --disable-programs --disable-doc --prefix=/tmp/ffmpeg && make --silent -j && make install --silent
 
 clean:
 	rm /tmp/$(FFMPEG_PKG).$(FFMPEG_EXT)
