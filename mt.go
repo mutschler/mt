@@ -573,7 +573,7 @@ func main() {
 	viper.BindPFlag("width", flag.Lookup("width"))
 
 	flag.StringP("font", "f", viper.GetString("font_all"), "font to use for timestamps and header information")
-	viper.BindPFlag("font_all", flag.Lookup("font_all"))
+	viper.BindPFlag("font_all", flag.Lookup("font"))
 
 	flag.Int("font-size", viper.GetInt("font_size"), "font size in px")
 	viper.BindPFlag("font_size", flag.Lookup("font-size"))
