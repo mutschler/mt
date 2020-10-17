@@ -7,9 +7,13 @@ import (
 	"image/draw"
 	"io/ioutil"
 	"math"
+	"mime"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -472,18 +476,42 @@ func appendHeader(im image.Image) image.Image {
 func createHeader(fn string) []string {
 
 	var header []string
-	_, fname := filepath.Split(fn)
+	var fname, fsize string
+	_, fname = filepath.Split(fn)
 
-	f, err := os.Open(fn)
-	if err != nil {
-		fmt.Println(err)
+	if f, err := os.Open(fn); err == nil {
+		defer f.Close()
+		stat, err := f.Stat()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fsize = humanize.IBytes(uint64(stat.Size()))
+	} else {
+		// try if it is a web video
+		if _, err = url.ParseRequestURI(fn); err != nil {
+			fmt.Println(err)
+		}
+		resp, err := http.Head(fn)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer resp.Body.Close()
+
+		fsize = resp.Header.Get("Content-Length")
+		if fsize == "" {
+			fsize = "unknown" // too expensive to download the whole file
+		} else {
+			size, _ := strconv.Atoi(fsize)
+			fsize = humanize.IBytes(uint64(size))
+		}
+
+		cdisposition := resp.Header.Get("Content-Disposition")
+		_, params, err := mime.ParseMediaType(cdisposition)
+		if params["filename"] != "" {
+			fname = params["filename"] // prefer filename to the name split from url
+		}
 	}
-	defer f.Close()
-	stat, err := f.Stat()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fsize := fmt.Sprintf("File Size: %s", humanize.IBytes(uint64(stat.Size())))
+	fsize = fmt.Sprintf("File Size: %s", fsize)
 	fname = fmt.Sprintf("File Name: %s", fname)
 
 	gen, err := screengen.NewGenerator(fn)
