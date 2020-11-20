@@ -139,7 +139,7 @@ func getFont(f string) ([]byte, error) {
 	}
 	if strings.Contains(f, "/") && strings.HasSuffix(f, ".ttf") {
 		if _, err := os.Stat(f); err == nil {
-			log.Infof("useing font: %s", f)
+			log.Infof("using font: %s", f)
 			return ioutil.ReadFile(f)
 		}
 	}
@@ -148,11 +148,11 @@ func getFont(f string) ([]byte, error) {
 	for _, dir := range fdirs {
 		fpath := filepath.Join(dir, f)
 		if _, err := os.Stat(fpath); err == nil {
-			log.Infof("useing font: %s", fpath)
+			log.Infof("using font: %s", fpath)
 			return ioutil.ReadFile(fpath)
 		}
 	}
-	log.Info("useing font: DroidSans.ttf")
+	log.Info("using font: DroidSans.ttf")
 	return Asset("DroidSans.ttf")
 }
 
@@ -209,7 +209,7 @@ func getImageColor(s string, fallback []int) color.RGBA {
 		b, _ = strconv.Atoi(strings.TrimSpace(colors[2]))
 		log.Debugf("color %s converted to [%d %d %d]", s, r, g, b)
 	} else {
-		log.Warnf("error converting %s to a valid color, useing fallback color: %v", s, fallback)
+		log.Warnf("error converting %s to a valid color, using fallback color: %v", s, fallback)
 		r, g, b = fallback[0], fallback[1], fallback[2]
 	}
 	return color.RGBA{uint8(r), uint8(g), uint8(b), 255}
