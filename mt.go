@@ -722,7 +722,7 @@ func main() {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Errorf("error reading config file: %s useing default values", err)
+		fmt.Errorf("error reading config file: %s using default values", err)
 	}
 
 	flag.Parse()
@@ -739,11 +739,11 @@ func main() {
 	}
 
 	if viper.GetString("config_file") != "" {
-		log.Debugf("Useing custom config file stored at: %s", viper.GetString("config_file"))
+		log.Debugf("Using custom config file stored at: %s", viper.GetString("config_file"))
 		viper.SetConfigFile(viper.GetString("config_file"))
 		err := viper.ReadInConfig()
 		if err != nil {
-			fmt.Errorf("error reading config file: %s useing default values", err)
+			fmt.Errorf("error reading config file: %s using default values", err)
 		}
 	}
 
@@ -794,7 +794,7 @@ NOTE: fancy has best results if it is applied as last filter!
 	if viper.ConfigFileUsed() != "" {
 		log.Debugf("Config file used: %s", viper.ConfigFileUsed())
 	} else {
-		log.Debugf("Useing default and runtime config")
+		log.Debugf("Using default and runtime config")
 	}
 
 	b, _ := json.Marshal(viper.AllSettings())
@@ -809,7 +809,7 @@ NOTE: fancy has best results if it is applied as last filter!
 		if viper.ConfigFileUsed() != "" {
 			log.Infof("Config file used: %s", viper.ConfigFileUsed())
 		} else {
-			log.Infof("Useing default and runtime config")
+			log.Infof("Using default and runtime config")
 		}
 		log.Infof("config values: %s", b)
 		os.Exit(1)

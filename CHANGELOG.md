@@ -17,7 +17,7 @@
 
 ### New
 - option to specify an interval (in seconds) instead of numcaps (`--interval`)
-- option which tries to skip ending credits by cuttin of 4 minutes of the movie (`--skip-credits`)
+- option which tries to skip ending credits by cutting off 4 minutes of the movie (`--skip-credits`)
 
 ### Changes
 - print errors when uploading fails
@@ -32,8 +32,8 @@
 ### Changes
 - improve usage of different skip functions when used in combination
 - changed help message for some flags
-- dont append `{{Count}}` to filename when useing `--single-images` with `--numcap 1`
-- Fix an error where Resulution wasn't correctly added to header
+- don't append `{{Count}}` to filename when using `--single-images` with `--numcap 1`
+- Fix an error where Resolution wasn't correctly added to header
 
 ## 1.0.6 (10 Jun 2016)
 
@@ -55,7 +55,7 @@
 ## 1.0.4 (07 Jan 2016)
 
 ### New
-- option for faster but more inaccurate seeking.
+- option for faster but more inaccurate seeking
 - experimental nude detection to skip images which are considered nude
 - dont overwrite existing images by default (increments filename by 1 by default)
 - switch for overwriting and skipping existing images
@@ -86,7 +86,7 @@
 ## 1.0.1 (22 Jul 2015)
 
 ### Change
-- hotfix to don't save images that are considered to black
+- hotfix to not save images that are considered to black
 
 ## 1.0.0 (22 Jul 2015)
 
