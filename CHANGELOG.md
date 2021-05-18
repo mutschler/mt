@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.11 (18 May 2021)
+
+### Fixes
+- fix wrong version reporting [#31](https://github.com/mutschler/mt/issues/31)
+
+### Changes
+- move from go dep to go modules [#27](https://github.com/mutschler/mt/issues/27)
+
 ## 1.0.10 (12 May 2020)
 
 ### Changes
