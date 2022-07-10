@@ -351,8 +351,16 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 	// create a new blank image
 	bgColor := getImageColor(viper.GetString("bg_content"), []int{0, 0, 0})
 	dst := imaging.New(imgWidth*columns+paddingColumns, imgHeight*imgRows+paddingRows, bgColor)
+	var head image.Image
 	x := 0
 	curRow := 0
+	headerHeight := 0
+
+	if viper.GetBool("header") {
+		log.Info("creating header information")
+		head = appendHeader(dst)
+		headerHeight = head.Bounds().Dy()
+	}
 
 	vttContent := "WEBVTT\n"
 	// paste thumbnails into the new image side by side with padding if enabled
@@ -379,14 +387,12 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 
 		if viper.GetBool("webvtt") {
 			_, imgName := filepath.Split(fn)
-			vttContent = fmt.Sprintf("%s\n%s.000 --> %s.000\n%s#xywh=%d,%d,%d,%d\n", vttContent, timestamps[idx], timestamps[idx+1], imgName, xPos, yPos, imgWidth, imgHeight)
+			vttContent = fmt.Sprintf("%s\n%s.000 --> %s.000\n%s#xywh=%d,%d,%d,%d\n", vttContent, timestamps[idx], timestamps[idx+1], imgName, xPos, yPos + headerHeight, imgWidth, imgHeight)
 		}
 
 	}
 
 	if viper.GetBool("header") {
-		log.Info("appending header informations")
-		head := appendHeader(dst)
 		newIm := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy()+head.Bounds().Dy(), bgColor)
 		dst = imaging.Paste(newIm, dst, image.Pt(0, head.Bounds().Dy()))
 		dst = imaging.Paste(dst, head, image.Pt(0, 0))
