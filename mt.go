@@ -159,7 +159,7 @@ func GenerateScreenshots(fn string) []image.Image {
 		d = from
 	}
 
-	if viper.GetBool("webvtt") {
+	if viper.GetBool("vtt") {
 		timestamps = append(timestamps, "00:00:00")
 	}
 
@@ -194,7 +194,7 @@ func GenerateScreenshots(fn string) []image.Image {
 
 		timestamp := fmt.Sprintf(time.Unix(stamp/1000, 0).UTC().Format("15:04:05"))
 		log.Infof("generating screenshot %02d/%02d at %s", i+1, numcaps, timestamp)
-		if viper.GetBool("webvtt") {
+		if viper.GetBool("vtt") {
 			timestamps = append(timestamps, timestamp)
 		}
 		//var thumb image.Image
@@ -385,7 +385,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 		dst = imaging.Paste(dst, thumb, image.Pt(xPos, yPos))
 		x = x + 1
 
-		if viper.GetBool("webvtt") {
+		if viper.GetBool("vtt") {
 			_, imgName := filepath.Split(fn)
 			vttContent = fmt.Sprintf("%s\n%s.000 --> %s.000\n%s#xywh=%d,%d,%d,%d\n", vttContent, timestamps[idx], timestamps[idx+1], imgName, xPos, yPos + headerHeight, imgWidth, imgHeight)
 		}
@@ -405,7 +405,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 		log.Fatalf("error saveing image: %v", err)
 	}
 	log.Infof("Saved image to %s", fn)
-	if viper.GetBool("webvtt") {
+	if viper.GetBool("vtt") {
 		vttfn := strings.Replace(fn, filepath.Ext(fn), ".vtt", -1)
 		err = ioutil.WriteFile(vttfn, []byte(vttContent), 0644)
 		if err != nil {
@@ -587,6 +587,7 @@ func main() {
 	viper.SetDefault("fast", false)
 	viper.SetDefault("show_config", false)
 	viper.SetDefault("webvtt", false)
+	viper.SetDefault("vtt", false)
 	viper.SetDefault("blur_threshold", 62)
 	viper.SetDefault("blank_threshold", 85)
 	viper.SetDefault("upload", false)
@@ -693,8 +694,11 @@ func main() {
 	flag.Bool("fast", viper.GetBool("fast"), "inacurate but faster seeking")
 	viper.BindPFlag("fast", flag.Lookup("fast"))
 
-	flag.Bool("webvtt", viper.GetBool("webvtt"), "create a .vtt file as well")
+	flag.Bool("webvtt", viper.GetBool("webvtt"), "create a .vtt file: disables header, header-meta, padding and timestamps")
 	viper.BindPFlag("webvtt", flag.Lookup("webvtt"))
+
+	flag.Bool("vtt", viper.GetBool("vtt"), "create a .vtt file for the generated image")
+	viper.BindPFlag("vtt", flag.Lookup("vtt"))
 
 	flag.Int("blur-threshold", viper.GetInt("blur_threshold"), "set a custom threshold to use for blurry image detection (defaults to 62)")
 	viper.BindPFlag("blur_threshold", flag.Lookup("blur-threshold"))
@@ -791,8 +795,10 @@ NOTE: fancy has best results if it is applied as last filter!
 	}
 
 	if viper.GetBool("webvtt") {
+		viper.Set("vtt", true)
 		viper.Set("header", false)
 		viper.Set("header_meta", false)
+		viper.Set("disable_timestamps", true)
 		viper.Set("padding", 0)
 	}
 
