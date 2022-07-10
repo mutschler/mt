@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.12 (10 June 2022)
+
+### New
+- added `--vtt` to create a .vtt file without touching any other options provided
+
+### Changes
+- `--webvtt` now disables timestamps as well (`--disable-timestamps`) (basically this is now a shorthand for running `--vtt --disable-timesamps --padding 0 --header=false --header-meta=false`)
+
 ## 1.0.11 (18 May 2021)
 
 ### Fixes
