@@ -25,6 +25,13 @@ jobs:
     steps:
      - uses: actions/checkout@v3
 
+     - name: Cache ffmpeg libraries
+       uses: actions/cache@v3
+       with:
+        path: |
+          ./dep/ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}
+        key: ./dep/ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}
+
      - uses: actions/setup-go@v3
        with:
         go-version: ${{ matrix.go }}
@@ -34,7 +41,7 @@ jobs:
        run: |
          echo "GOOS=$(go env GOOS)" >> $GITHUB_ENV
 
-     - name: Install dependencies
+     - name: build (Go && ffmpeg if needed)
        run: make
        env:
           GOARCH: ${{ matrix.goarch }}
@@ -50,3 +57,4 @@ jobs:
        with:
           files: |
             mt_${{ env.GOOS }}_${{ matrix.goarch }}.tgz
+
