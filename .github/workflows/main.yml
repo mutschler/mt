@@ -17,9 +17,6 @@ jobs:
         go: [ '1.19.2' ]
         continue-on-error: [true]
     runs-on: ${{ matrix.os }}
-#    env:
-#      mgoarch:  ${{ matrix.goos }}
-#      mgoos:  ${{ matrix.goarch }}
 
     steps:
      - uses: actions/checkout@v3
@@ -57,4 +54,5 @@ jobs:
        with:
           files: |
             mt_${{ env.GOOS }}_${{ matrix.goarch }}.tgz
+            ./dep/lib_${{ env.GOOS }}_${{ matrix.goarch }}.tgz
 
