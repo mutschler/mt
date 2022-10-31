@@ -34,8 +34,8 @@ jobs:
        uses: actions/cache@v3
        with:
         path: |
-          ./dep/ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}
-        key: ./dep/ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}
+          dep/ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}
+        key: ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}
 
 
      - name: build (Go && ffmpeg if needed)
