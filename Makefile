@@ -30,8 +30,6 @@ buildffmpeg:
 	cd $(PREFIX)/$(FFMPEG_PKG) && ./configure --disable-yasm --disable-programs --disable-doc --prefix=$(FFMPEGTARGET)
 	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG) --silent -j`nproc`
 	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG)  install --silent
-	tar zcf $(PREFIX)/lib_ffmpeg_$(GOOS)_$(GOARCH).tgz $(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)/lib/*
-
 
 $(FFMPEGTARGET)/lib/libavcodec.a:
 	$(MAKE) buildffmpeg

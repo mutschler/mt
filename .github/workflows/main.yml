@@ -54,5 +54,4 @@ jobs:
        with:
           files: |
             mt_${{ env.GOOS }}_${{ matrix.goarch }}.tgz
-            ./dep/lib_${{ env.GOOS }}_${{ matrix.goarch }}.tgz
 
