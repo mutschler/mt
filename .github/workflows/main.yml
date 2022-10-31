@@ -42,11 +42,11 @@ jobs:
      - name: Zip binary
        id: zip
        run: |
-         zip mt_${{ env.GOOS }}_${{ matrix.goarch }}.zip mt
+         tar zcf mt_${{ env.GOOS }}_${{ matrix.goarch }}.tgz mt
 
      - name: Release
        uses: softprops/action-gh-release@v1
        if: startsWith(github.ref, 'refs/tags/')
        with:
           files: |
-            mt_${{ env.GOOS }}_${{ matrix.goarch }}.zip
+            mt_${{ env.GOOS }}_${{ matrix.goarch }}.tgz
