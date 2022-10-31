@@ -40,16 +40,16 @@ $(FFMPEGTARGET)/lib/libavcodec.a:
 	$(MAKE) buildffmpeg
 
 $(FFMPEGTARGET)/lib/libavformat.a:
-
+	$(MAKE) buildffmpeg
 
 $(FFMPEGTARGET)/lib/libavutil.a:
-
+	$(MAKE) buildffmpeg
 
 $(FFMPEGTARGET)/lib/libswresample.a:
-
+	$(MAKE) buildffmpeg
 
 $(FFMPEGTARGET)/lib/libswscale.a:
-
+	$(MAKE) buildffmpeg
 
 ffmpeg: $(FFMPEGTARGET)/lib/libavcodec.a $(FFMPEGTARGET)/lib/libavformat.a $(FFMPEGTARGET)/lib/libavutil.a $(FFMPEGTARGET)/lib/libswresample.a $(FFMPEGTARGET)/lib/libswscale.a
 
