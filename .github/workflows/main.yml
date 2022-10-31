@@ -5,21 +5,41 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
- 
-  workflow_dispatch:
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'ubuntu-latest', 'macos-latest' ]
+        goarch: ['amd64', 'arm64']
+        go: [ '1.18.3' ]
+        continue-on-error: [true]
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      mgoarch:  ${{ matrix.goos }}
+      mgoos:  ${{ matrix.goarch }}
 
     steps:
-    - uses: actions/checkout@v3
+     - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.16
-      
-    - name: Install dependencies
-      run: make
+     - uses: actions/setup-go@v3
+       with:
+        go-version: ${{ matrix.go }}
+     - name: Retrieve GOOS
+       id: goos
+       run: |
+         echo "GOOS=$(go env GOOS)" >> $GITHUB_ENV
+
+     - name: Install dependencies
+       run: make buildffmpeg
+       env:
+          GOARCH: ${{ matrix.goarch }}
+
+     - uses: actions/upload-artifact@master
+       with:
+        name: mt_${{ env.GOOS }}_${{ matrix.goarch }}
+        path: |
+          lib_ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}.zip
+

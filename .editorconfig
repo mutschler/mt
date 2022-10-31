@@ -1,0 +1,69 @@
+# unifying the coding style for different editors and IDEs => editorconfig.org
+
+; indicate this is the root of the project
+root = true
+
+###########################################################
+; common
+###########################################################
+
+[*]
+charset = utf-8
+end_of_line = LF
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+#max_line_length = 80
+
+
+###########################################################
+; make
+###########################################################
+
+[{Makefile, makefile, GNUmakefile}]
+indent_style = tab
+indent_size = 4
+
+
+###########################################################
+; markdown
+###########################################################
+
+[*.md *.mdown]
+trim_trailing_whitespace = false
+
+
+###########################################################
+; golang
+###########################################################
+
+[*.go]
+indent_style = tab
+indent_size = 4
+
+
+###########################################################
+; Yaml
+###########################################################
+
+[.yml]
+indent_style = space
+indent_size = 2
+
+
+###########################################################
+; shell
+###########################################################
+[{.bashrc, .bash_*, *.sh, .profile}]
+indent_style = tab
+indent_size = 4
+
+
+###########################################################
+; terraform
+###########################################################
+[*.{tf,tfvars}]
+indent_style = space
+indent_size = 4
