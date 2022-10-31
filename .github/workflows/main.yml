@@ -12,8 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ 'ubuntu-latest', 'macos-latest' ]
-        goarch: ['amd64', 'arm64']
-        go: [ '1.18.3' ]
+        goarch:  ['amd64'] # ['amd64', 'arm64'] # arm64 will not work as long Github does not provide arm runners
+        go: [ 'latest' ]
         continue-on-error: [true]
 
     runs-on: ${{ matrix.os }}
@@ -40,6 +40,4 @@ jobs:
      - uses: actions/upload-artifact@master
        with:
         name: mt_${{ env.GOOS }}_${{ matrix.goarch }}
-        path: |
-          lib_ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}.zip
-
+        path: mt
