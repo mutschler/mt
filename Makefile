@@ -24,8 +24,8 @@ all: ffmpeg build
 	echo $(FFMPEGTARGET)
 
 build:
-	go build $(GOFLAGS)
-#	PKG_CONFIG_LIBDIR=$(FFMPEGTARGET)/lib/pkgconfig/ LD_LIBRARY_PATH=$(FFMPEGTARGET)/lib/ go build $(GOFLAGS)
+#	go build $(GOFLAGS)
+	PKG_CONFIG_LIBDIR=$(FFMPEGTARGET)/lib/pkgconfig/ LD_LIBRARY_PATH=$(FFMPEGTARGET)/lib/ go build $(GOFLAGS)
 
 buildffmpeg:
 	mkdir -p $(FFMPEGTARGET)
