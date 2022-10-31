@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "master" ]
   pull_request:
@@ -12,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ 'ubuntu-latest', 'macos-latest' ]
-        goarch:  ['amd64'] # ['amd64', 'arm64'] # arm64 will not work as long Github does not provide arm runners
-        go: [ 'latest' ]
+        goarch:  ['amd64'] # ['amd64', 'arm64'] # arm64 will not work as long Github does not provide
+        go: [ '1.19.2' ]
         continue-on-error: [true]
 
     runs-on: ${{ matrix.os }}
@@ -41,3 +42,12 @@ jobs:
        with:
         name: mt_${{ env.GOOS }}_${{ matrix.goarch }}
         path: mt
+
+#     - name: Release
+#        uses: softprops/action-gh-release@v1
+#        if: startsWith(github.ref, 'refs/tags/')
+#        with:
+#          files: |
+#            release/cselo-linux-${{ steps.vars.outputs.tag }}.tgz
+#            release/cselo-mac-${{ steps.vars.outputs.tag }}.dmg
+#            release/cselo-win-${{ steps.vars.outputs.tag }}.zip

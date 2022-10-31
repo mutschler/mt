@@ -11,14 +11,16 @@ GOOS = $(shell go env GOOS)
 PROJECTROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 PREFIX = $(PROJECTROOT)dep
 FFMPEGTARGET = $(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)
+VERSIONFLAGS = -X main.GitVersion=`git describe --tags --always --dirty` -X main.BuildTimestamp=`date -u '+%Y-%m-%d_%I:%M:%S_UTC'` -X main.FfmpegVersion=$(FFMPEG_PKG)
 
 ifeq ($(UNAME),Darwin)
-	GOFLAGS = -ldflags '-L "$(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)/lib/" -extldflags "-static -Wl,--allow-multiple-definition"'
+	GOFLAGS = -ldflags "$(VERSIONFLAGS) -L '$(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)/lib/' -extldflags '-static -Wl,--allow-multiple-definition'"
 else
-	GOFLAGS = -ldflags='-L "$(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)/lib/"'
+	GOFLAGS = -ldflags "$(VERSIONFLAGS) -L '$(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)/lib/'"
 endif
 
 all: ffmpeg build
+	echo $(VERSIONFLAGS)
 	echo $(FFMPEGTARGET)
 
 build:
@@ -31,7 +33,6 @@ buildffmpeg:
 	tar -xf $(PREFIX)/$(FFMPEG_PKG).$(FFMPEG_EXT) -C $(PREFIX)/
 	cd $(PREFIX)/$(FFMPEG_PKG) && ./configure --disable-yasm --disable-programs --disable-doc --prefix=$(FFMPEGTARGET)
 	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG) --silent -j`nproc`
-#;$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG) --silent -j`nproc`
 	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG)  install --silent
 	zip -r $(PREFIX)/lib_ffmpeg_$(GOOS)_$(GOARCH) $(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)/lib/*
 

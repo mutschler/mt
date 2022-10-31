@@ -27,11 +27,15 @@ import (
 	"gitlab.com/opennota/screengen"
 )
 
+var GitVersion = ""
+var FfmpegVersion = ""
+var BuildTimestamp = ""
+
 var blankPixels int
 var allPixels int
 var mpath string
 var fontBytes []byte
-var version string = "1.0.12"
+var version string = GitVersion + " (" + FfmpegVersion + ") built on " + BuildTimestamp
 var timestamps []string
 var numcaps int
 
@@ -387,7 +391,7 @@ func makeContactSheet(thumbs []image.Image, fn string) {
 
 		if viper.GetBool("vtt") {
 			_, imgName := filepath.Split(fn)
-			vttContent = fmt.Sprintf("%s\n%s.000 --> %s.000\n%s#xywh=%d,%d,%d,%d\n", vttContent, timestamps[idx], timestamps[idx+1], imgName, xPos, yPos + headerHeight, imgWidth, imgHeight)
+			vttContent = fmt.Sprintf("%s\n%s.000 --> %s.000\n%s#xywh=%d,%d,%d,%d\n", vttContent, timestamps[idx], timestamps[idx+1], imgName, xPos, yPos+headerHeight, imgWidth, imgHeight)
 		}
 
 	}
