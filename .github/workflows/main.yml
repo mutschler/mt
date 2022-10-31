@@ -28,26 +28,25 @@ jobs:
      - uses: actions/setup-go@v3
        with:
         go-version: ${{ matrix.go }}
+
      - name: Retrieve GOOS
        id: goos
        run: |
          echo "GOOS=$(go env GOOS)" >> $GITHUB_ENV
 
      - name: Install dependencies
-       run: make buildffmpeg
+       run: make
        env:
           GOARCH: ${{ matrix.goarch }}
 
-     - uses: actions/upload-artifact@master
-       with:
-        name: mt_${{ env.GOOS }}_${{ matrix.goarch }}
-        path: mt
+     - name: Zip binary
+       id: zip
+       run: |
+         zip mt_${{ env.GOOS }}_${{ matrix.goarch }}.zip mt
 
-#     - name: Release
-#        uses: softprops/action-gh-release@v1
-#        if: startsWith(github.ref, 'refs/tags/')
-#        with:
-#          files: |
-#            release/cselo-linux-${{ steps.vars.outputs.tag }}.tgz
-#            release/cselo-mac-${{ steps.vars.outputs.tag }}.dmg
-#            release/cselo-win-${{ steps.vars.outputs.tag }}.zip
+     - name: Release
+       uses: softprops/action-gh-release@v1
+       if: startsWith(github.ref, 'refs/tags/')
+       with:
+          files: |
+            mt_${{ env.GOOS }}_${{ matrix.goarch }}.zip
