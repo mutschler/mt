@@ -1,1 +1,9 @@
 mt
+dep
+dep/ffmpeg-*
+dep/ffmpeg_*/share
+dep/ffmpeg_*/include
+dep/ffmpeg_*/lib/pkgconfig*
+.vscode/
+.idea/
+.DS_Store/

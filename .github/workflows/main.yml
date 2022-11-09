@@ -1,25 +1,57 @@
 name: CI
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
- 
   workflow_dispatch:
+  push:
+    #branches: [ "master" ]
+  pull_request:
+    #branches: [ "master" ]
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'ubuntu-latest', 'macos-latest' ]
+        goarch:  ['amd64'] # ['amd64', 'arm64'] # arm64 will not work as long Github does not provide
+        go: [ '1.19.2' ]
+        continue-on-error: [true]
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+     - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.16
-      
-    - name: Install dependencies
-      run: make
+     - uses: actions/setup-go@v3
+       with:
+        go-version: ${{ matrix.go }}
+
+     - name: Retrieve GOOS
+       id: goos
+       run: |
+         echo "GOOS=$(go env GOOS)" >> $GITHUB_ENV
+
+     - name: Cache ffmpeg libraries
+       uses: actions/cache@v3
+       with:
+        path: |
+          dep/ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}
+        key: ffmpeg_${{ env.GOOS }}_${{ matrix.goarch }}
+
+
+     - name: build (Go && ffmpeg if needed)
+       run: make
+       env:
+          GOARCH: ${{ matrix.goarch }}
+
+     - name: Zip binary
+       id: zip
+       run: |
+         tar zcf mt_${{ env.GOOS }}_${{ matrix.goarch }}.tgz mt
+
+     - name: Release
+       uses: softprops/action-gh-release@v1
+       if: startsWith(github.ref, 'refs/tags/')
+       with:
+          files: |
+            mt_${{ env.GOOS }}_${{ matrix.goarch }}.tgz
+

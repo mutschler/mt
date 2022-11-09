@@ -5,20 +5,55 @@ FFMPEG_PKG = ffmpeg-4.4
 FFMPEG_EXT = tar.bz2
 FFMPEG_SRC = http://ffmpeg.org/releases/$(FFMPEG_PKG).$(FFMPEG_EXT)
 
+GOARCH = $(shell go env GOARCH)
+GOOS = $(shell go env GOOS)
+PROJECTROOT = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+PREFIX = $(PROJECTROOT)dep
+FFMPEGTARGET = $(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)
+VERSIONFLAGS = -X main.GitVersion=`git describe --tags --always --dirty` -X main.BuildTimestamp=`date -u '+%Y-%m-%d_%I:%M:%S_UTC'` -X main.FfmpegVersion=$(FFMPEG_PKG)
+
 ifeq ($(UNAME),Darwin)
-	GOFLAGS = --ldflags '-extldflags "-static -Wl,--allow-multiple-definition"'
+	GOFLAGS = -ldflags "$(VERSIONFLAGS) -L '$(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)/lib/' -extldflags '-static -Wl,--allow-multiple-definition'"
 else
-	GOFLAGS =
+	GOFLAGS = -ldflags "$(VERSIONFLAGS) -L '$(PREFIX)/ffmpeg_$(GOOS)_$(GOARCH)/lib/'"
 endif
 
-all: ffmpeg
-	PKG_CONFIG_LIBDIR=/tmp/ffmpeg/lib/pkgconfig/ LD_LIBRARY_PATH=/tmp/ffmpeg/lib/ go build $(GOFLAGS)
+all: ffmpeg build
 
-ffmpeg:
-	wget -P /tmp $(FFMPEG_SRC)
-	tar -xf /tmp/$(FFMPEG_PKG).$(FFMPEG_EXT) -C /tmp/
-	cd /tmp/$(FFMPEG_PKG) && ./configure --disable-yasm --disable-programs --disable-doc --prefix=/tmp/ffmpeg && make --silent -j`nproc` && make install --silent
+build:
+	PKG_CONFIG_LIBDIR=$(FFMPEGTARGET)/lib/pkgconfig/ LD_LIBRARY_PATH=$(FFMPEGTARGET)/lib/ go build $(GOFLAGS)
+
+buildffmpeg:
+	mkdir -p $(FFMPEGTARGET)
+	wget -P $(PREFIX) $(FFMPEG_SRC)
+	tar -xf $(PREFIX)/$(FFMPEG_PKG).$(FFMPEG_EXT) -C $(PREFIX)/
+	cd $(PREFIX)/$(FFMPEG_PKG) && ./configure --disable-yasm --disable-programs --disable-doc --prefix=$(FFMPEGTARGET)
+	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG) --silent -j`nproc`
+	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG)  install --silent
+
+$(FFMPEGTARGET)/lib/libavcodec.a:
+	$(MAKE) buildffmpeg
+
+$(FFMPEGTARGET)/lib/libavformat.a:
+	$(MAKE) buildffmpeg
+
+$(FFMPEGTARGET)/lib/libavutil.a:
+	$(MAKE) buildffmpeg
+
+$(FFMPEGTARGET)/lib/libswresample.a:
+	$(MAKE) buildffmpeg
+
+$(FFMPEGTARGET)/lib/libswscale.a:
+	$(MAKE) buildffmpeg
+
+ffmpeg: $(FFMPEGTARGET)/lib/libavcodec.a $(FFMPEGTARGET)/lib/libavformat.a $(FFMPEGTARGET)/lib/libavutil.a $(FFMPEGTARGET)/lib/libswresample.a $(FFMPEGTARGET)/lib/libswscale.a
+
 
 clean:
-	rm /tmp/$(FFMPEG_PKG).$(FFMPEG_EXT)
-	rm -rf /tmp/$(FFMPEG_PKG)
+	rm -f $(PREFIX)/$(FFMPEG_PKG).$(FFMPEG_EXT)
+	rm -rf $(PREFIX)/$(FFMPEG_PKG)
+	rm -f mt
+
+wipe: clean
+	rm -rf dep
+
