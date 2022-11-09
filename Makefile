@@ -29,6 +29,7 @@ buildffmpeg:
 	tar -xf $(PREFIX)/$(FFMPEG_PKG).$(FFMPEG_EXT) -C $(PREFIX)/
 	cd $(PREFIX)/$(FFMPEG_PKG) && ./configure --disable-yasm --disable-programs --disable-doc --prefix=$(FFMPEGTARGET)
 	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG) --silent -j`nproc`
+	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG) --silent -j`nproc`
 	$(MAKE) -C $(PREFIX)/$(FFMPEG_PKG)  install --silent
 
 $(FFMPEGTARGET)/lib/libavcodec.a:
