@@ -9,8 +9,6 @@ github.com/disintegration/gift v0.0.0-20150417200635-5b044b74c0b1 h1:oJ4Skp/73ta
 github.com/disintegration/gift v0.0.0-20150417200635-5b044b74c0b1/go.mod h1:Jh2i7f7Q2BM7Ezno3PhfezbR1xpUg9dUg3/RlKGr4HI=
 github.com/disintegration/imaging v0.0.0-20151003014424-546cb3c5137b h1:IHmtzTCBi7px9AgNwT2L9AT2zY+x08whypSA7SWQIec=
 github.com/disintegration/imaging v0.0.0-20151003014424-546cb3c5137b/go.mod h1:9B/deIUIrliYkyMTuXJd6OUFLcrZ2tf+3Qlwnaf/CjU=
-github.com/dustin/go-humanize v0.0.0-20151109071335-64dbdae0d393 h1:oGZMXb81PpQ+5LVN1rIhQc3EcJI8udW/1nJgc4XAVyM=
-github.com/dustin/go-humanize v0.0.0-20151109071335-64dbdae0d393/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
@@ -41,10 +39,10 @@ github.com/spf13/viper v0.0.0-20151110042204-e37b56e207dd/go.mod h1:A8kyI5cUJhb8
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-gitlab.com/opennota/screengen v0.0.0-20181109135927-07a6a531d91c h1:XKPPMe3EVm0rOxZ0AHSNY/MxixiL44z6Bk7/3aTCeMg=
-gitlab.com/opennota/screengen v0.0.0-20181109135927-07a6a531d91c/go.mod h1:aMJ5Zrz1DJL5RysiKMd20d/ndkMQU9Zeaei3z9KAmBQ=
-gitlab.com/opennota/screengen v0.0.0-20210313035852-1f554a814ee7 h1:3UO6wAl5SJzj8sL26/RaXEUsu9wFSZfpyvdjxkIEFR4=
-gitlab.com/opennota/screengen v0.0.0-20210313035852-1f554a814ee7/go.mod h1:4kED4yriw2zslwYmXFCa5qCvEKwleBA7l5OE+d94NTU=
+gitlab.com/opennota/screengen v1.0.1 h1:oEYF/HEt/qDPT5CTjl4HhuiJDnTlwNBSce+kD/2itQ0=
+gitlab.com/opennota/screengen v1.0.1/go.mod h1:4kED4yriw2zslwYmXFCa5qCvEKwleBA7l5OE+d94NTU=
+gitlab.com/opennota/screengen v1.0.2-0.20221226180231-4f11d9e4d758 h1:hc3Zv4AU8jT9bXKxY6Wm5zzABn3SNOYO9qHMxfharnM=
+gitlab.com/opennota/screengen v1.0.2-0.20221226180231-4f11d9e4d758/go.mod h1:4kED4yriw2zslwYmXFCa5qCvEKwleBA7l5OE+d94NTU=
 golang.org/x/image v0.0.0-20150916112557-baddd3465a05 h1:1NCwmdUj5+iOsjHKYAF+ybBaLWEuWnya1hWF7Q9+MGo=
 golang.org/x/image v0.0.0-20150916112557-baddd3465a05/go.mod h1:ux5Hcp/YLpHSI86hEcLt0YII63i6oz57MZXIpbrjZUs=
 golang.org/x/sys v0.0.0-20151211033651-833a04a10549 h1:imXIGlmpdV8HlMP9DTrSVaxjoffgGbwFZdJl0Ous5dc=
