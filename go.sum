@@ -43,6 +43,8 @@ gitlab.com/opennota/screengen v1.0.1 h1:oEYF/HEt/qDPT5CTjl4HhuiJDnTlwNBSce+kD/2i
 gitlab.com/opennota/screengen v1.0.1/go.mod h1:4kED4yriw2zslwYmXFCa5qCvEKwleBA7l5OE+d94NTU=
 gitlab.com/opennota/screengen v1.0.2-0.20221226180231-4f11d9e4d758 h1:hc3Zv4AU8jT9bXKxY6Wm5zzABn3SNOYO9qHMxfharnM=
 gitlab.com/opennota/screengen v1.0.2-0.20221226180231-4f11d9e4d758/go.mod h1:4kED4yriw2zslwYmXFCa5qCvEKwleBA7l5OE+d94NTU=
+gitlab.com/opennota/screengen v1.0.2 h1:GxYTJdAPEzmg5v5CV4dgn45JVW+EcXXAvCxhE7w6UDw=
+gitlab.com/opennota/screengen v1.0.2/go.mod h1:4kED4yriw2zslwYmXFCa5qCvEKwleBA7l5OE+d94NTU=
 golang.org/x/image v0.0.0-20150916112557-baddd3465a05 h1:1NCwmdUj5+iOsjHKYAF+ybBaLWEuWnya1hWF7Q9+MGo=
 golang.org/x/image v0.0.0-20150916112557-baddd3465a05/go.mod h1:ux5Hcp/YLpHSI86hEcLt0YII63i6oz57MZXIpbrjZUs=
 golang.org/x/sys v0.0.0-20151211033651-833a04a10549 h1:imXIGlmpdV8HlMP9DTrSVaxjoffgGbwFZdJl0Ous5dc=
