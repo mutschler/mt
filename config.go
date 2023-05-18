@@ -48,7 +48,7 @@ type config struct {
 var C config
 var tmpDir = ""
 
-func saveConfig(cfgpath string) error {
+func saveConfig(configurationPath string) error {
 	err := mapstructure.WeakDecode(viper.AllSettings(), &C)
 
 	if err != nil {
@@ -60,7 +60,7 @@ func saveConfig(cfgpath string) error {
 		return err
 	}
 
-	f, err := os.Create(cfgpath)
+	f, err := os.Create(configurationPath)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func saveConfig(cfgpath string) error {
 	defer f.Close()
 
 	f.WriteString(string(b))
-	log.Infof("config file saved to: %s", cfgpath)
+	log.Infof("config file saved to: %s", configurationPath)
 
 	return nil
 }
