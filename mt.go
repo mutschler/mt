@@ -39,8 +39,8 @@ var version string = GitVersion + " (" + FfmpegVersion + ") built on " + BuildTi
 var timestamps []string
 var numcaps int
 
-//gets the timestamp value ("HH:MM:SS") and returns an image
-//TODO: rework this to take any string and a bool for full width/centered text
+// gets the timestamp value ("HH:MM:SS") and returns an image
+// TODO: rework this to take any string and a bool for full width/centered text
 func drawTimestamp(timestamp string) image.Image {
 	var timestamped image.Image
 
@@ -555,49 +555,8 @@ func createHeader(fn string) []string {
 func main() {
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	viper.SetConfigName("mt")
-	viper.SetEnvPrefix("mt")
-	viper.SetDefault("numcaps", 4)
-	viper.SetDefault("columns", 2)
-	viper.SetDefault("padding", 10)
-	viper.SetDefault("width", 400)
-	viper.SetDefault("height", 0)
-	viper.SetDefault("font_all", "DroidSans.ttf")
-	viper.SetDefault("font_size", 12)
-	viper.SetDefault("disable_timestamps", false)
-	viper.SetDefault("timestamp_opacity", 1.0)
-	viper.SetDefault("filename", "{{.Path}}{{.Name}}.jpg")
-	viper.SetDefault("verbose", false)
-	viper.SetDefault("bg_content", "0,0,0")
-	viper.SetDefault("border", 0)
-	viper.SetDefault("from", "00:00:00")
-	viper.SetDefault("end", "00:00:00")
-	viper.SetDefault("single_images", false)
-	viper.SetDefault("header", true)
-	viper.SetDefault("font_dirs", []string{})
-	viper.SetDefault("bg_header", "0,0,0")
-	viper.SetDefault("fg_header", "255,255,255")
-	viper.SetDefault("header_image", "")
-	viper.SetDefault("header_meta", false)
-	viper.SetDefault("watermark", "")
-	viper.SetDefault("comment", "contactsheet created with mt (https://github.com/mutschler/mt)")
-	viper.SetDefault("watermark-all", "")
-	viper.SetDefault("filter", "none")
-	viper.SetDefault("skip_blank", false)
-	viper.SetDefault("skip_blurry", false)
-	viper.SetDefault("skip_existing", false)
-	viper.SetDefault("overwrite", false)
-	viper.SetDefault("sfw", false)
-	viper.SetDefault("fast", false)
-	viper.SetDefault("show_config", false)
-	viper.SetDefault("webvtt", false)
-	viper.SetDefault("vtt", false)
-	viper.SetDefault("blur_threshold", 62)
-	viper.SetDefault("blank_threshold", 85)
-	viper.SetDefault("upload", false)
-	viper.SetDefault("upload_url", "http://example.com/upload")
-	viper.SetDefault("skip_credits", false)
-	viper.SetDefault("interval", 0)
+
+	configInit()
 
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures to make")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
@@ -722,21 +681,9 @@ func main() {
 	flag.Bool("skip-credits", viper.GetBool("skip_credits"), "tries to skip ending credits from screencap creation by cutting off 4 minutes or 10 percent of the clip (defaults to false)")
 	viper.BindPFlag("skip_credits", flag.Lookup("skip-credits"))
 
-	viper.AutomaticEnv()
-
-	viper.SetConfigType("json")
-	viper.AddConfigPath("./")
-	viper.AddConfigPath("/etc/mt/")
-	viper.AddConfigPath("$HOME/.mt")
-
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s: [flags] [file]\n", os.Args[0])
 		flag.PrintDefaults()
-	}
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Errorf("error reading config file: %s using default values", err)
 	}
 
 	flag.Parse()
@@ -816,9 +763,10 @@ NOTE: fancy has best results if it is applied as last filter!
 	b, _ := json.Marshal(viper.AllSettings())
 	log.Debugf("config values: %s", b)
 
-	fontBytes, err = getFont(viper.GetString("font_all"))
-	if err != nil {
-		log.Warn("unable to load font, disableing timestamps and header")
+	var errFont error
+	fontBytes, errFont = getFont(viper.GetString("font_all"))
+	if errFont != nil {
+		log.Warn("unable to load font, disabling timestamps and header")
 	}
 
 	if viper.GetBool("show_config") {
@@ -830,6 +778,11 @@ NOTE: fancy has best results if it is applied as last filter!
 		log.Infof("config values: %s", b)
 		os.Exit(1)
 	}
+
+	//
+	//
+	//
+	// End of main()
 
 	for _, movie := range flag.Args() {
 		mpath = movie

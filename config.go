@@ -8,6 +8,14 @@ import (
 	"os"
 )
 
+const (
+	configName = "mt"
+	configType = "json"
+
+	blurThreshold  = 62
+	blankThreshold = 85
+)
+
 type config struct {
 	// Numcaps is the number of thumbnails to use in the contact sheet.
 	Numcaps int `json:"numcaps"`
@@ -93,6 +101,67 @@ type config struct {
 var C config
 var tmpDir = ""
 
+// configInit sets default variables and reads configuration file.
+func configInit() {
+	viper.AutomaticEnv()
+	viper.SetConfigName(configName)
+	viper.SetConfigType(configType)
+	viper.SetEnvPrefix("mt")
+
+	viper.AddConfigPath("./")
+	viper.AddConfigPath("/etc/mt/")
+	viper.AddConfigPath("$HOME/.mt")
+
+	// Set mt defaults
+	viper.SetDefault("numcaps", 4)
+	viper.SetDefault("columns", 2)
+	viper.SetDefault("padding", 10)
+	viper.SetDefault("width", 400)
+	viper.SetDefault("height", 0)
+	viper.SetDefault("font_all", "DroidSans.ttf") // Should this be Ubuntu.ttf to match readme?
+	viper.SetDefault("font_size", 12)
+	viper.SetDefault("disable_timestamps", false)
+	viper.SetDefault("timestamp_opacity", 1.0)
+	viper.SetDefault("filename", "{{.Path}}{{.Name}}.jpg")
+	viper.SetDefault("verbose", false)
+	viper.SetDefault("bg_content", "0,0,0")
+	viper.SetDefault("border", 0)
+	viper.SetDefault("from", "00:00:00")
+	viper.SetDefault("end", "00:00:00")
+	viper.SetDefault("single_images", false)
+	viper.SetDefault("header", true)
+	viper.SetDefault("font_dirs", []string{})
+	viper.SetDefault("bg_header", "0,0,0")
+	viper.SetDefault("fg_header", "255,255,255")
+	viper.SetDefault("header_image", "")
+	viper.SetDefault("header_meta", false)
+	viper.SetDefault("watermark", "")
+	viper.SetDefault("comment", "contact sheet created with mt (https://github.com/mutschler/mt)")
+	viper.SetDefault("watermark-all", "")
+	viper.SetDefault("filter", "none")
+	viper.SetDefault("skip_blank", false)
+	viper.SetDefault("skip_blurry", false)
+	viper.SetDefault("skip_existing", false)
+	viper.SetDefault("overwrite", false)
+	viper.SetDefault("sfw", false)
+	viper.SetDefault("fast", false)
+	viper.SetDefault("show_config", false)
+	viper.SetDefault("webvtt", false)
+	viper.SetDefault("vtt", false)
+	viper.SetDefault("blur_threshold", blurThreshold)
+	viper.SetDefault("blank_threshold", blankThreshold)
+	viper.SetDefault("upload", false)
+	viper.SetDefault("upload_url", "http://example.com/upload")
+	viper.SetDefault("skip_credits", false)
+	viper.SetDefault("interval", 0)
+
+	err := viper.ReadInConfig()
+	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		log.Info("configuration file not found, using defaults")
+	}
+	log.Info("loaded config file")
+}
+
 func saveConfig(configurationPath string) error {
 	err := mapstructure.WeakDecode(viper.AllSettings(), &C)
 
@@ -107,7 +176,7 @@ func saveConfig(configurationPath string) error {
 
 	f, err := os.Create(configurationPath)
 	if err != nil {
-		return err
+		return ErrCannotSaveConfigFile
 	}
 
 	defer f.Close()
