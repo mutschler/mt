@@ -98,7 +98,6 @@ type config struct {
 	UploadUrl string `json:"upload_url"`
 }
 
-var C config
 var tmpDir = ""
 
 // configInit sets default variables and reads configuration file.
@@ -163,13 +162,14 @@ func configInit() {
 }
 
 func saveConfig(configurationPath string) error {
-	err := mapstructure.WeakDecode(viper.AllSettings(), &C)
+	var currentConfig config
+	err := mapstructure.WeakDecode(viper.AllSettings(), &currentConfig)
 
 	if err != nil {
 		return err
 	}
 
-	b, err := json.MarshalIndent(&C, "", "    ")
+	b, err := json.MarshalIndent(&currentConfig, "", "    ")
 	if err != nil {
 		return err
 	}
