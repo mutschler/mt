@@ -160,128 +160,170 @@ func configInit() {
 	log.Info("loaded config file")
 
 	// Bind values in config file to commandline flags
+	var bindErr error
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures to make")
-	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
+	bindErr = viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
+	flagBindErrorHandling(bindErr)
 
 	flag.IntP("columns", "c", viper.GetInt("columns"), "number of columns")
-	viper.BindPFlag("columns", flag.Lookup("columns"))
+	bindErr = viper.BindPFlag("columns", flag.Lookup("columns"))
+	flagBindErrorHandling(bindErr)
 
 	flag.IntP("padding", "p", viper.GetInt("padding"), "padding between the images in px")
-	viper.BindPFlag("padding", flag.Lookup("padding"))
+	bindErr = viper.BindPFlag("padding", flag.Lookup("padding"))
+	flagBindErrorHandling(bindErr)
 
 	flag.IntP("width", "w", viper.GetInt("width"), "width of a single screenshot in px")
-	viper.BindPFlag("width", flag.Lookup("width"))
+	bindErr = viper.BindPFlag("width", flag.Lookup("width"))
+	flagBindErrorHandling(bindErr)
 
 	flag.StringP("font", "f", viper.GetString("font_all"), "font to use for timestamps and header information")
-	viper.BindPFlag("font_all", flag.Lookup("font"))
+	bindErr = viper.BindPFlag("font_all", flag.Lookup("font"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Int("font-size", viper.GetInt("font_size"), "font size in px")
-	viper.BindPFlag("font_size", flag.Lookup("font-size"))
+	bindErr = viper.BindPFlag("font_size", flag.Lookup("font-size"))
+	flagBindErrorHandling(bindErr)
 
 	flag.BoolP("disable-timestamps", "d", viper.GetBool("disable_timestamps"), "disable timestamps on images")
-	viper.BindPFlag("disable_timestamps", flag.Lookup("disable-timestamps"))
+	bindErr = viper.BindPFlag("disable_timestamps", flag.Lookup("disable-timestamps"))
+	flagBindErrorHandling(bindErr)
 
 	flag.BoolP("verbose", "v", viper.GetBool("verbose"), "enable verbose output")
-	viper.BindPFlag("verbose", flag.Lookup("verbose"))
+	bindErr = viper.BindPFlag("verbose", flag.Lookup("verbose"))
+	flagBindErrorHandling(bindErr)
 
 	flag.BoolP("single-images", "s", viper.GetBool("single_images"), "save single images instead of one combined contact sheet")
-	viper.BindPFlag("single_images", flag.Lookup("single-images"))
+	bindErr = viper.BindPFlag("single_images", flag.Lookup("single-images"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("bg-header", viper.GetString("bg_header"), "rgb background color for header")
-	viper.BindPFlag("bg_header", flag.Lookup("bg-header"))
+	bindErr = viper.BindPFlag("bg_header", flag.Lookup("bg-header"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("fg-header", viper.GetString("fg_header"), "rgb font color for header")
-	viper.BindPFlag("fg_header", flag.Lookup("fg-header"))
+	bindErr = viper.BindPFlag("fg_header", flag.Lookup("fg-header"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("bg-content", viper.GetString("bg_content"), "rgb background color for the main content area")
-	viper.BindPFlag("bg_content", flag.Lookup("bg-content"))
+	bindErr = viper.BindPFlag("bg_content", flag.Lookup("bg-content"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("header-image", viper.GetString("header_image"), "image to put in the header")
-	viper.BindPFlag("header_image", flag.Lookup("header-image"))
+	bindErr = viper.BindPFlag("header_image", flag.Lookup("header-image"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("comment", viper.GetString("comment"), "Add a text comment to the header")
-	viper.BindPFlag("comment", flag.Lookup("comment"))
+	bindErr = viper.BindPFlag("comment", flag.Lookup("comment"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("watermark", viper.GetString("watermark"), "watermark the final image")
-	viper.BindPFlag("watermark", flag.Lookup("watermark"))
+	bindErr = viper.BindPFlag("watermark", flag.Lookup("watermark"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("watermark-all", viper.GetString("watermark_all"), "watermark every single image")
-	viper.BindPFlag("watermark_all", flag.Lookup("watermark-all"))
+	bindErr = viper.BindPFlag("watermark_all", flag.Lookup("watermark-all"))
+	flagBindErrorHandling(bindErr)
 
 	flag.BoolP("skip-blank", "b", viper.GetBool("skip_blank"), "skip up to 3 images in a row which seem to be blank (can slow mt down)")
-	viper.BindPFlag("skip_blank", flag.Lookup("skip-blank"))
+	bindErr = viper.BindPFlag("skip_blank", flag.Lookup("skip-blank"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("skip-blurry", viper.GetBool("skip_blurry"), "skip up to 3 images in a row which seem to be blurry (can slow mt down)")
-	viper.BindPFlag("skip_blurry", flag.Lookup("skip-blurry"))
+	bindErr = viper.BindPFlag("skip_blurry", flag.Lookup("skip-blurry"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("version", false, "show version number and exit")
-	viper.BindPFlag("show_version", flag.Lookup("version"))
+	bindErr = viper.BindPFlag("show_version", flag.Lookup("version"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("header", viper.GetBool("header"), "append header to the contact sheet")
-	viper.BindPFlag("header", flag.Lookup("header"))
+	bindErr = viper.BindPFlag("header", flag.Lookup("header"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("header-meta", viper.GetBool("header_meta"), "also add codec, fps and bitrate informations to the header")
-	viper.BindPFlag("header_meta", flag.Lookup("header-meta"))
+	bindErr = viper.BindPFlag("header_meta", flag.Lookup("header-meta"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("filter", viper.GetString("filter"), "apply one or mor filters to images (comma seperated list), see --filters for available filters")
-	viper.BindPFlag("filter", flag.Lookup("filter"))
+	bindErr = viper.BindPFlag("filter", flag.Lookup("filter"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("filters", false, "list all available image filters")
-	viper.BindPFlag("filters", flag.Lookup("filters"))
+	bindErr = viper.BindPFlag("filters", flag.Lookup("filters"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("output", viper.GetString("filename"), "set an output filename")
-	viper.BindPFlag("filename", flag.Lookup("output"))
+	bindErr = viper.BindPFlag("filename", flag.Lookup("output"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("from", viper.GetString("from"), "set starting point in format HH:MM:SS")
-	viper.BindPFlag("from", flag.Lookup("from"))
+	bindErr = viper.BindPFlag("from", flag.Lookup("from"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("to", viper.GetString("end"), "set end point in format HH:MM:SS")
-	viper.BindPFlag("end", flag.Lookup("to"))
+	bindErr = viper.BindPFlag("end", flag.Lookup("to"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("save-config", viper.GetString("save_config"), "save config with current settings to this file")
-	viper.BindPFlag("save_config", flag.Lookup("save-config"))
+	bindErr = viper.BindPFlag("save_config", flag.Lookup("save-config"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("config-file", viper.GetString("config_file"), "use a specific configuration file")
-	viper.BindPFlag("config_file", flag.Lookup("config-file"))
+	bindErr = viper.BindPFlag("config_file", flag.Lookup("config-file"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("skip-existing", viper.GetBool("skip_existing"), "skip any item if there is already a screencap present")
-	viper.BindPFlag("skip_existing", flag.Lookup("skip-existing"))
+	bindErr = viper.BindPFlag("skip_existing", flag.Lookup("skip-existing"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("overwrite", viper.GetBool("overwrite"), "overwrite existing screencaps")
-	viper.BindPFlag("overwrite", flag.Lookup("overwrite"))
+	bindErr = viper.BindPFlag("overwrite", flag.Lookup("overwrite"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("sfw", viper.GetBool("sfw"), "use nudity detection to generate sfw images (HIGHLY EXPERIMENTAL)")
-	viper.BindPFlag("sfw", flag.Lookup("sfw"))
+	bindErr = viper.BindPFlag("sfw", flag.Lookup("sfw"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("show-config", viper.GetBool("show_config"), "show path to currently used config file as well as used values and exit")
-	viper.BindPFlag("show_config", flag.Lookup("show-config"))
+	bindErr = viper.BindPFlag("show_config", flag.Lookup("show-config"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("fast", viper.GetBool("fast"), "inacurate but faster seeking")
-	viper.BindPFlag("fast", flag.Lookup("fast"))
+	bindErr = viper.BindPFlag("fast", flag.Lookup("fast"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("webvtt", viper.GetBool("webvtt"), "create a .vtt file: disables header, header-meta, padding and timestamps")
-	viper.BindPFlag("webvtt", flag.Lookup("webvtt"))
+	bindErr = viper.BindPFlag("webvtt", flag.Lookup("webvtt"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("vtt", viper.GetBool("vtt"), "create a .vtt file for the generated image")
-	viper.BindPFlag("vtt", flag.Lookup("vtt"))
+	bindErr = viper.BindPFlag("vtt", flag.Lookup("vtt"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Int("blur-threshold", viper.GetInt("blur_threshold"), "set a custom threshold to use for blurry image detection (defaults to 62)")
-	viper.BindPFlag("blur_threshold", flag.Lookup("blur-threshold"))
+	bindErr = viper.BindPFlag("blur_threshold", flag.Lookup("blur-threshold"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Int("blank-threshold", viper.GetInt("blank_threshold"), "set a custom threshold to use for blank image detection (defaults to 85)")
-	viper.BindPFlag("blank_threshold", flag.Lookup("blank-threshold"))
+	bindErr = viper.BindPFlag("blank_threshold", flag.Lookup("blank-threshold"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("upload", viper.GetBool("upload"), "post file via http form submit")
-	viper.BindPFlag("upload", flag.Lookup("upload"))
+	bindErr = viper.BindPFlag("upload", flag.Lookup("upload"))
+	flagBindErrorHandling(bindErr)
 
 	flag.String("upload-url", viper.GetString("upload_url"), "url to use for --upload")
-	viper.BindPFlag("upload_url", flag.Lookup("upload-url"))
+	bindErr = viper.BindPFlag("upload_url", flag.Lookup("upload-url"))
+	flagBindErrorHandling(bindErr)
 
 	flag.IntP("interval", "i", viper.GetInt("interval"), "interval in seconds to take screencaps from, overwrites numcaps (defaults to 0)")
-	viper.BindPFlag("interval", flag.Lookup("interval"))
+	bindErr = viper.BindPFlag("interval", flag.Lookup("interval"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Bool("skip-credits", viper.GetBool("skip_credits"), "tries to skip ending credits from screencap creation by cutting off 4 minutes or 10 percent of the clip (defaults to false)")
-	viper.BindPFlag("skip_credits", flag.Lookup("skip-credits"))
+	bindErr = viper.BindPFlag("skip_credits", flag.Lookup("skip-credits"))
+	flagBindErrorHandling(bindErr)
 
 	flag.Parse()
 }
@@ -310,4 +352,10 @@ func saveConfig(configurationPath string) error {
 	log.Infof("config file saved to: %s", configurationPath)
 
 	return nil
+}
+
+func flagBindErrorHandling(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
