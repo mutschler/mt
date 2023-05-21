@@ -654,11 +654,6 @@ NOTE: fancy has best results if it is applied as last filter!
 		os.Exit(1)
 	}
 
-	//
-	//
-	//
-	// End of main()
-
 	for _, movie := range flag.Args() {
 		mpath = movie
 		log.Infof("generating contact sheet for %s", movie)
