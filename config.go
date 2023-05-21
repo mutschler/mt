@@ -98,8 +98,6 @@ type config struct {
 	UploadUrl string `json:"upload_url"`
 }
 
-var tmpDir = ""
-
 // configInit sets default variables and reads configuration file.
 func configInit() {
 	viper.AutomaticEnv()
