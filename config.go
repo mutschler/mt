@@ -331,7 +331,6 @@ func configInit() {
 func saveConfig(configurationPath string) error {
 	var currentConfig config
 	err := mapstructure.WeakDecode(viper.AllSettings(), &currentConfig)
-
 	if err != nil {
 		return err
 	}
@@ -343,15 +342,19 @@ func saveConfig(configurationPath string) error {
 
 	f, err := os.Create(configurationPath)
 	if err != nil {
+		return err
+	}
+
+	_, err = f.WriteString(string(b))
+	if err != nil {
+		if err := f.Close(); err != nil {
+			return err
+		}
 		return ErrCannotSaveConfigFile
 	}
 
-	defer f.Close()
-
-	f.WriteString(string(b))
 	log.Infof("config file saved to: %s", configurationPath)
-
-	return nil
+	return f.Close()
 }
 
 func flagBindErrorHandling(e error) {
