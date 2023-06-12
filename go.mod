@@ -19,7 +19,7 @@ require (
 	github.com/spf13/pflag v0.0.0-20151013200643-08b1a584251b
 	github.com/spf13/viper v0.0.0-20151110042204-e37b56e207dd
 	github.com/stretchr/testify v1.7.0 // indirect
-	gitlab.com/opennota/screengen v1.0.2-0.20221226180231-4f11d9e4d758
+	gitlab.com/opennota/screengen v1.0.2
 	golang.org/x/image v0.0.0-20150916112557-baddd3465a05 // indirect
 	golang.org/x/sys v0.0.0-20151211033651-833a04a10549 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
