@@ -12,7 +12,7 @@ you can download the latest version [![GitHub release](https://img.shields.io/gi
 
 ## Installation from Source
 
-`mt` uses depends on ffmpeg's libraries, so you'll need those installed and then run:
+`mt` uses depends on ffmpeg's libraries, so you'll need those installed  (for windows you might want to have a look [here](https://github.com/mutschler/mt/issues/44#issuecomment-1773288147))and then run:
 
 ```
 go get github.com/mutschler/mt
