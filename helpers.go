@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"image/jpeg"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -199,7 +198,7 @@ func isNudeImage(img image.Image) bool {
 	return isNude
 }
 
-//takes a string "0,0,0" and returns the RGBA color
+// takes a string "0,0,0" and returns the RGBA color
 func getImageColor(s string, fallback []int) color.RGBA {
 	colors := strings.Split(s, ",")
 	var r, g, b int
@@ -264,7 +263,7 @@ func constructSavePath(filename string, c int) string {
 	return buf.String()
 }
 
-//gets a filename (string) and returns the absolute path to save the image to...
+// gets a filename (string) and returns the absolute path to save the image to...
 func getSavePath(filename string, c int) string {
 	fname := constructSavePath(filename, c)
 
@@ -279,26 +278,4 @@ func getSavePath(filename string, c int) string {
 		fname = constructSavePath(filename, counter)
 	}
 	return fname
-}
-
-// saves the image to a temporary location and returns the path
-func saveTempFile(img image.Image) string {
-	if tmpDir == "" {
-		tmpDir, _ = ioutil.TempDir("", "mt")
-	}
-
-	tmpFile, err := ioutil.TempFile(tmpDir, "mt")
-	if err != nil {
-		fmt.Print(err)
-	}
-
-	buf := new(bytes.Buffer)
-	_ = jpeg.Encode(buf, img, nil)
-	send_s3 := buf.Bytes()
-
-	tmpFile.Write(send_s3)
-
-	defer tmpFile.Close()
-
-	return tmpFile.Name()
 }
