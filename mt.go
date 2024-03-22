@@ -841,7 +841,12 @@ NOTE: fancy has best results if it is applied as last filter!
 		// TODO: implement generation of image contac sheets from a folder
 
 		//skip existing image if option is present
-		if fileExists(getSavePath(movie, 0)) && viper.GetBool("skip_existing") {
+		cnt := 0
+		if viper.GetBool("single_images") {
+			cnt = 1
+		}
+
+		if fileExists(getSavePath(movie, cnt)) && viper.GetBool("skip_existing") {
 			log.Infof("file already exists, skipping %s", getSavePath(movie, 0))
 			continue
 		}
