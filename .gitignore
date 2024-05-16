@@ -1,4 +1,8 @@
 mt
+
+# Ignore accidental changes to config
+mt.json
+
 dep
 dep/ffmpeg-*
 dep/ffmpeg_*/share
