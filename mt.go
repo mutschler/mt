@@ -99,9 +99,6 @@ func GenerateScreenshots(fn string) []image.Image {
 	from := stringToMS(viper.GetString("from"))
 	end := stringToMS(viper.GetString("end"))
 
-	if from > end {
-		log.Fatalf("from cant be higher than to")
-	}
 	if from > 0 {
 		log.Infof("First screenshot will be at %s", viper.GetString("from"))
 	}
@@ -120,7 +117,12 @@ func GenerateScreenshots(fn string) []image.Image {
 	}
 
 	if end > 0 {
-		duration = end
+		if strings.HasPrefix(viper.GetString("end"), "-") {
+			log.Infof("to option is negative, substracting %s from end of file", viper.GetString("end"))
+			duration = duration - end
+		} else {
+			duration = end
+		}
 	}
 
 	if from > 0 {
