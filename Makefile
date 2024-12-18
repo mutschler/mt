@@ -1,7 +1,7 @@
 #target is to generate several bin files automatically
 ARCHES := linux_amd64 i686-w64-mingw32 x86_64-w64-mingw32 arm-linux-gnueabihf
 
-FFMPEG_VERSION = 6.0
+FFMPEG_VERSION = 7.1
 FFMPEG_PKG = ffmpeg-$(FFMPEG_VERSION)
 FFMPEG_EXT = tar.bz2
 FFMPEG_SRC = http://ffmpeg.org/releases/$(FFMPEG_PKG).$(FFMPEG_EXT)
