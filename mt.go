@@ -599,6 +599,8 @@ func main() {
 	viper.SetDefault("skip_credits", false)
 	viper.SetDefault("interval", 0)
 
+	viper.RegisterAlias("to", "end")
+
 	flag.IntP("numcaps", "n", viper.GetInt("numcaps"), "number of captures to make")
 	viper.BindPFlag("numcaps", flag.Lookup("numcaps"))
 
