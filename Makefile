@@ -14,9 +14,9 @@ FFMPEGTARGET = $(PREFIX)/ffmpeg_$(FFMPEG_VERSION)_$(GOOS)_$(GOARCH)
 VERSIONFLAGS = -X main.GitVersion=`git describe --tags --always --dirty` -X main.BuildTimestamp=`date -u '+%Y-%m-%d_%I:%M:%S_UTC'` -X main.FfmpegVersion=$(FFMPEG_PKG)
 
 ifeq ($(UNAME),Darwin)
-	GOFLAGS = -ldflags "$(VERSIONFLAGS) -L '$(PREFIX)/ffmpeg_$(FFMPEG_VERSION)_$(GOOS)_$(GOARCH)/lib/' -extldflags '-static -Wl,--allow-multiple-definition'"
+	GOFLAGS = -ldflags "-s -w $(VERSIONFLAGS) -L '$(PREFIX)/ffmpeg_$(FFMPEG_VERSION)_$(GOOS)_$(GOARCH)/lib/' -extldflags '-static -Wl,--allow-multiple-definition'"
 else
-	GOFLAGS = -ldflags "$(VERSIONFLAGS) -L '$(PREFIX)/ffmpeg_$(FFMPEG_VERSION)_$(GOOS)_$(GOARCH)/lib/'"
+	GOFLAGS = -ldflags "-s -w $(VERSIONFLAGS) -L '$(PREFIX)/ffmpeg_$(FFMPEG_VERSION)_$(GOOS)_$(GOARCH)/lib/'"
 endif
 
 all: ffmpeg build
