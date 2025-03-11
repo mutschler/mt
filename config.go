@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"os"
+
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"os"
 )
 
 type config struct {
@@ -25,6 +26,7 @@ type config struct {
 	Skip_Blank         bool   `json:"skip_blank"`
 	Header             bool   `json:"header"`
 	Header_Meta        bool   `json:"header_meta"`
+	Skip_Credits       bool   `json:"skip_credits"`
 	Filter             string `json:"filter"`
 	Filename           string `json:"filename"`
 	From               string `json:"from"`
