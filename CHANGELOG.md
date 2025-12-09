@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.0.16 (09 Dec 2025)
+
+### Changes
+- update several dependencies to more recent versions
+
+## 1.0.15 (18 Dec 2024)
+
+### New
+- support for negative values in `--to` (cuts time from the end ex: `--to=-00:05:00` will cut the last 5 minutes)
+- config file alias for `to` and `end` option so both can be used
+- allow usage of `from` without the need to specify `to`
+
+## 1.0.14 (22 March 2023)
+
+### Fixes
+- add support for `--skip-existing` when used in combination with `-s`
+
+## 1.0.13 (17 March 2023)
+
+### Changes
+- add support for ffmpeg 5+
+
 ## 1.0.12 (10 June 2022)
 
 ### New
