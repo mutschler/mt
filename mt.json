@@ -15,6 +15,7 @@
     "skip_blank": false,
     "header": true,
     "header_meta": false,
+    "skip_credits": true,
     "filter": "none",
     "filename": "{{.Path}}{{.Name}}.jpg",
     "from": "0",
@@ -30,6 +31,7 @@
     "blur_threshold": 62,
     "blank_threshold": 85,
     "webvtt": false,
+    "vtt": false,
     "upload": false,
     "upload_url": "http://example.com/upload"
 }
