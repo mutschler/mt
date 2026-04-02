@@ -17,7 +17,7 @@ require (
 	github.com/spf13/jwalterweatherman v0.0.0-20151106170057-c2aa07df5938 // indirect
 	github.com/spf13/pflag v0.0.0-20151013200643-08b1a584251b
 	github.com/spf13/viper v0.0.0-20151110042204-e37b56e207dd
-	gitlab.com/opennota/screengen v1.0.3-0.20241130161450-1c5d73299944
+	gitlab.com/opennota/screengen v1.0.3-0.20260325071014-3d76485eda08
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
